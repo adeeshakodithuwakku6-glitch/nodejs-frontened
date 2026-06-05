@@ -2,7 +2,7 @@ import { Link, Route, Routes } from "react-router-dom";
 export default function AdminPage(){
     return(
         <div className="flex h-screen w-full text-white">
-            <div className="w-[360px] h-full bg-red-900 flex flex-col">
+            <div className="w-90 h-full bg-red-900 flex flex-col">
                 <h1>Hi! Admin</h1>
                 <Link to="/admin">← Admin Dashboard</Link>
                 <Link to="/admin/users">User Management</Link>
