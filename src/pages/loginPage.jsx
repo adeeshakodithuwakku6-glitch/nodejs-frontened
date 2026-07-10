@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import toast from "react-hot-toast";
 import api from "../lib/api.js";
 export default function LoginPage(){
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const navigate = useNavigate(); 
     function handleLogin(){
         api.post("/users/login", {
             email: email,
@@ -15,6 +17,13 @@ export default function LoginPage(){
                 console.log(res.data.token);
                 console.log(res.data.isadmin);
                 localStorage.setItem("token", res.data.token);
+                if(res.data.isadmin){
+                  navigate("/admin");  
+                }
+                else{
+                  navigate("/");
+                }
+            
             })
             .catch((err) => {
                 toast.error("Invalid email or password");
@@ -28,6 +37,7 @@ export default function LoginPage(){
                 <h1 className="text-2xl font-bold text-white">Login</h1>
                 <label className="text-black mt-4 w-full font-semibold">Email</label>
                 <input 
+                      value={email}
                       onChange={
                         (e)=>{
                              setEmail(e.target.value)
@@ -36,6 +46,7 @@ export default function LoginPage(){
                       type="email" className="w-full h-14 rounded-md p-2 mb-4 border-2 border-white focus:border-be-zinc-900" placeholder="example@gmail.com"/>
                 <label className="text-black mt-4 w-full font-semibold">Password</label>
                 <input 
+                      value={password}
                       onChange={
                         (e)=>{
                              setPassword(e.target.value)
