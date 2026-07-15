@@ -7,19 +7,27 @@ export default function UploadMedia(file){
     return new Promise(
         (resolve,reject)=>{
             if(file == null){
-                reject("File is null")
-            }else{
-                const timestamp = new Date().getTime();
-                const fileName = timestamp + "_" + file.name;
-                supabase.storage.from("images").upload(fileName, file).then(
-                    ()=>{
-                        const publicUrl = supabase.storage.from("images").getPublicUrl(fileName).data.publicUrl
-                        resolve(publicUrl)
-                    }
-                ).catch((err)=>{
-                    reject(err)
-                })
+                return reject("File is null")
             }
+
+            const timestamp = new Date().getTime();
+            const safeName = file.name
+                .normalize("NFKD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/\s+/g, "-")
+                .replace(/[^a-zA-Z0-9._-]/g, "-")
+                .replace(/-+/g, "-")
+                .replace(/^\.+|\.+$/g, "") || "file";
+            const fileName = `${timestamp}-${Math.random().toString(36).slice(2, 10)}-${safeName}`;
+
+            supabase.storage.from("images").upload(fileName, file).then(
+                ()=>{
+                    const publicUrl = supabase.storage.from("images").getPublicUrl(fileName).data.publicUrl
+                    resolve(publicUrl)
+                }
+            ).catch((err)=>{
+                reject(err)
+            })
         }
     )
 }

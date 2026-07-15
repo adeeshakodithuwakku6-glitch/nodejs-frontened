@@ -1,34 +1,64 @@
-import {useState} from "react"
+import { useState } from "react"
 import UploadMedia from "../lib/uploadMedia.js"
-import toast, { Toaster } from "react-hot-toast"
 
 export default function TestPage(){
-    const[file,setfile]=useState(null)
-    function Uploadfile(file){
-        UploadMedia(file).then((publicUrl)=>{
+    const [file, setFile] = useState(null)
+    const [dragActive, setDragActive] = useState(false)
+
+    function handleFileSelect(selectedFile){
+        if(selectedFile){
+            setFile(selectedFile)
+        }
+    }
+
+    function Uploadfile(selectedFile){
+        if(!selectedFile){
+            return
+        }
+
+        UploadMedia(selectedFile).then((publicUrl)=>{
             console.log(publicUrl)
-            toast.success("File uploaded successfully!")
         }).catch((err)=>{
             console.log(err)
-            toast.error("Error uploading file!")
         })
     }
+
+    function handleDrop(event){
+        event.preventDefault()
+        setDragActive(false)
+        const droppedFile = event.dataTransfer.files?.[0]
+        handleFileSelect(droppedFile)
+    }
+
  return( 
-    
-    <div className="w-full h-full flex items-center justify-center m-6">
-      <input type="file" onChange={
-        (e)=>{
-            setfile(e.target.files[0])
-            console.log(e.target.files[0])
-        }
-      }
-      >
+    <div className="w-full min-h-screen flex items-center justify-center bg-gray-50 p-6">
+      <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        <label
+          className={`flex h-40 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition ${dragActive ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-gray-50"}`}
+          onDragOver={(event) => {
+            event.preventDefault()
+            setDragActive(true)
+          }}
+          onDragLeave={() => setDragActive(false)}
+          onDrop={handleDrop}
+        >
+          <input
+            type="file"
+            className="hidden"
+            onChange={(e) => handleFileSelect(e.target.files?.[0])}
+          />
+          <span className="text-sm font-semibold text-gray-700">Drag and drop image here</span>
+          <span className="mt-2 text-sm text-gray-500">or click to choose a file</span>
+        </label>
 
+        {file && (
+          <p className="mt-3 text-sm text-gray-600">Selected: {file.name}</p>
+        )}
 
-      </input>
-      <button onClick={Uploadfile} className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors duration-200">
-        Upload
-      </button>
+        <button onClick={() => Uploadfile(file)} className="mt-4 w-full rounded-md bg-blue-500 px-4 py-2 text-white transition-colors duration-200 hover:bg-blue-600">
+          Submit
+        </button>
+      </div>
     </div>
  )
     
