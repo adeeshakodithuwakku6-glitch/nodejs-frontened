@@ -2,6 +2,9 @@ import { Link, Route, Routes } from "react-router-dom";
 import { FaShoppingCart } from "react-icons/fa";
 import { FaUser } from "react-icons/fa";
 import { LuPackageOpen } from "react-icons/lu";
+import AdminProducts from "./admin/adminproducts.jsx";
+import AddProductsForm from "./admin/adminaddproductsform.jsx";
+
 export default function AdminPage(){
     return(
         <div className="flex h-screen w-full text-black shadow-2xl">
@@ -17,8 +20,9 @@ export default function AdminPage(){
             <div className="w-[calc(100%-360px)] h-full bg-gray-300 text-black">
                 <Routes>
                     <Route index element={<h1>Admin Dashboard</h1>} />
-                    <Route path="/users" element={<h1>User Management</h1>} />
-                    <Route path="/products" element={<h1>Products</h1>} />
+                    <Route path="users" element={<h1>User Management</h1>} />
+                    <Route path="products" element={<AdminProducts />} />
+                    <Route path="add-product" element={<AddProductsForm />} />
                 </Routes>
             </div>
         </div>
