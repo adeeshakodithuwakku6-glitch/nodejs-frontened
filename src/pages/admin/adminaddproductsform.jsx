@@ -2,6 +2,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import uploadMedia from "../../lib/uploadMedia";
+import api from "../../lib/api.js";
+import LoadingAnimation from "../../components/loadinganimation";
 
 export default function AddProductsForm() {
     const navigate = useNavigate();
@@ -17,6 +19,7 @@ export default function AddProductsForm() {
     const[category, setCategory] = useState("");
     const[brand, setBrand] = useState("");
     const[model, setModel] = useState("");
+    const[isSaving, setIsSaving] = useState(false);
 
     async function handleSave(){
         const token = localStorage.getItem("token");
@@ -25,7 +28,22 @@ export default function AddProductsForm() {
             navigate("/login");
             return;
         }
+        const productdata ={
+            productID : productID,
+            name : name,
+            altNames : [],
+            description : description,
+            images : [],
+            price : price,
+            labelledPrice : labelledPrice,
+            stock : stock,
+            isAvailable : isAvailable,
+            category : category,
+            brand : brand,
+            model : model
+        }
         try{
+            setIsSaving(true);
             const imageUploadPromises = [];
 
             for(let i=0; i<images.length; i++){
@@ -34,14 +52,28 @@ export default function AddProductsForm() {
 
             console.log(imageUploadPromises);
             const imageUrls = await Promise.all(imageUploadPromises);
+            productdata.images = imageUrls;
+            productdata.altNames = altNames;
+
+            const resoforders = await api.post("/products", productdata, {
+                headers: {
+                    Authorization: "Bearer "+token,
+                }
+            });
+            console.log(resoforders);
+            toast.success("Product added successfully");
+            navigate("/admin/products");
 
         }catch(err){
             console.log(err);
             toast.error("Failed to add product");
+        } finally {
+            setIsSaving(false);
         }
     }
     return (
-        <div className="w-full h-full flex flex-col p-4">
+        <div className="relative w-full h-full flex flex-col p-4">
+            {isSaving && <LoadingAnimation />}
             <div className="w-full bg-white shadow-md rounded-lg px-4 py-5 overflow-y-auto">
                 <div className="flex items-center justify-between border-b border-gray-200 pb-4">
                     <h1 className="text-2xl font-semibold text-black">Add New Product</h1>
@@ -81,9 +113,10 @@ export default function AddProductsForm() {
                         <input
                             type="text"
                             value={altNames.join(", ")}
-                            onChange={(e) => setAltNames(e.target.value.split(", ").map((s) => s.trim()))}
+                            onChange={(e) => setAltNames(e.target.value.split(",").map((s) => s.trim()))}
                             className="h-12 rounded-md border border-gray-300 px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
+                        <span className="mt-1 text-sm text-gray-500">Enter alternative names separated by commas, e.g. "name1, name2"</span>
                     </div>
 
                     <div className="col-span-2 flex flex-col">
