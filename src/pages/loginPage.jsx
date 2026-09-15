@@ -5,9 +5,12 @@ import { FcGoogle } from "react-icons/fc";
 import toast from "react-hot-toast";
 import api from "../lib/api.js";
 export default function LoginPage(){
+  // Keep the form fields controlled so their values are available during login.
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate(); 
+
+    // Send the credentials to the API and route the user based on their role.
     function handleLogin(){
         api.post("/users/login", {
             email: email,
@@ -31,6 +34,7 @@ export default function LoginPage(){
             });
     }
     return(
+      // Render the login form and links to the other account actions.
         <div className="w-full h-screen bg-[url('/bg.jpg')] bg-cover bg-center flex items-center justify-center">
               <div className="w-112.5 h-140 backdrop-blur-md shadow-2xl rounded-lg p-2 flex flex-col items-center">
                 <img src="/logologin.png" className="w-25 h-17.5 object-cover m-1 rounded-lg"/>

@@ -1,4 +1,5 @@
 export default function ProductCard(props){
+    // Display the basic product information supplied by the parent component.
     return(
         <div className="bg-violet-950 w-60 h-96 ">
             <img src={props.image}/>

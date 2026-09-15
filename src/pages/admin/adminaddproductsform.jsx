@@ -7,6 +7,8 @@ import LoadingAnimation from "../../components/loadinganimation";
 
 export default function AddProductsForm() {
     const navigate = useNavigate();
+
+    // Store every product field until the user submits the form.
     const[productID, setProductID] = useState("");
     const[name, setName] = useState("");
     const[altNames, setAltNames] = useState([]);
@@ -21,13 +23,16 @@ export default function AddProductsForm() {
     const[model, setModel] = useState("");
     const[isSaving, setIsSaving] = useState(false);
 
+    // Upload images first, then submit the complete product to the backend.
     async function handleSave(){
         const token = localStorage.getItem("token");
+        // Product creation requires an authenticated user.
         if(token == null){
             toast.error("You are not logged in");
             navigate("/login");
             return;
         }
+        // Build the payload expected by the products endpoint.
         const productdata ={
             productID : productID,
             name : name,
@@ -43,9 +48,11 @@ export default function AddProductsForm() {
             model : model
         }
         try{
+            // Show the overlay while uploads and the API request are in progress.
             setIsSaving(true);
             const imageUploadPromises = [];
 
+            // Upload all selected images in parallel for faster completion.
             for(let i=0; i<images.length; i++){
                 imageUploadPromises[i] = uploadMedia(images[i]);
             }
@@ -55,6 +62,7 @@ export default function AddProductsForm() {
             productdata.images = imageUrls;
             productdata.altNames = altNames;
 
+            // Save the product after replacing local files with public image URLs.
             const resoforders = await api.post("/products", productdata, {
                 headers: {
                     Authorization: "Bearer "+token,
@@ -73,6 +81,7 @@ export default function AddProductsForm() {
     }
     return (
         <div className="relative w-full h-full flex flex-col p-4">
+            {/* Display a blocking loading overlay while saving. */}
             {isSaving && <LoadingAnimation />}
             <div className="w-full bg-white shadow-md rounded-lg px-4 py-5 overflow-y-auto">
                 <div className="flex items-center justify-between border-b border-gray-200 pb-4">

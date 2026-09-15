@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import api from "../lib/api.js";
 export default function RegisterPage(){
 
+  // Store each registration field as controlled form state.
     const [email, setEmail] = useState("");
     const[firstname, setfirstname] = useState("");
     const[lastname, setlastname] = useState("");
@@ -13,7 +14,8 @@ export default function RegisterPage(){
     const[confirmpassword, setconfirmpassword] = useState("");
 
     const navigate = useNavigate(); 
-       
+
+    // Validate the passwords before creating the new account through the API.
     function handleRegister(){
        if(!password || !confirmpassword){
           toast.error("Please enter both password fields");
@@ -41,6 +43,7 @@ export default function RegisterPage(){
             });
     }
     return(
+      // Render the registration form and account navigation links.
         <div className="w-full h-screen bg-[url('/bg.jpg')] bg-cover bg-center flex items-center justify-center">
               <div className="w-112.5 h-140 backdrop-blur-md shadow-2xl rounded-lg p-2 flex flex-col items-center">
                 <img src="/logologin.png" className="w-25 h-17.5 object-cover m-1 rounded-lg"/>
@@ -104,7 +107,7 @@ export default function RegisterPage(){
                       }
                       type="password" className="w-full h-14 rounded-xl px-4 py-3 border border-white/70 bg-white/80 text-gray-900 shadow-sm backdrop-blur-sm placeholder:text-gray-500 focus:border-blue-600 focus:ring-2 focus:ring-blue-400/40 transition-all duration-200" placeholder="Confirm your password"/>
                 
-                <button onClick={handleRegister} className="w-full h-16 bg-gradient-to-r from-blue-700 to-blue-600 text-white rounded-xl mt-4 shadow-lg shadow-blue-500/20 hover:from-blue-600 hover:to-blue-500 transition-all duration-200 font-semibold text-lg">Register</button>
+                <button onClick={handleRegister} className="w-full h-16 bg-linear-to-r from-blue-700 to-blue-600 text-white rounded-xl mt-4 shadow-lg shadow-blue-500/20 hover:from-blue-600 hover:to-blue-500 transition-all duration-200 font-semibold text-lg">Register</button>
                 <p className="text-black mt-4 ">Already have an account? <Link to="/login" className="text-blue-500 hover:underline">Login here</Link></p>
                 <button className="w-full h-14 bg-white/90 text-gray-800 rounded-xl mt-4 border border-gray-200 shadow-sm hover:bg-gray-50 transition-all duration-200 flex items-center justify-center gap-2 font-semibold text-base"><FcGoogle className="text-xl" />Register with Google</button>
                 

@@ -1,25 +1,77 @@
-import { FaCirclePlus } from "react-icons/fa6";
+// Import the refresh, add-product, edit, and delete icons used by this page.
+import { FaArrowsRotate, FaCirclePlus, FaRegPenToSquare, FaRegTrashCan } from "react-icons/fa6";
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import api from "../../lib/api";
+import DeleteProductModal from "../../components/deleteProductModal";
 
 export default function AdminProducts() {
+    // Store the products returned by the API and the current search text.
     const [products, setProducts] = useState([]);
     const [search, setSearch] = useState("");
 
-    useEffect(() => {
-        const fetchProducts = async () => {
-            try {
-                const response = await api.get("/products");
-                setProducts(response.data);
-            } catch (error) {
-                console.error("Error fetching products:", error);
-            }
-        };
+    // This state lets the page show that products are currently being loaded.
+    const [isloading, setloading] = useState(false);
+    const [productToDelete, setProductToDelete] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
-        fetchProducts();
+    // Load the latest products and update the loading state for the entire request.
+    const fetchProducts = useCallback(async () => {
+        setloading(true);
+
+        try {
+            // Request the product list from the backend.
+            const response = await api.get("/products");
+            setProducts(response.data);
+        } catch (error) {
+            console.error("Error fetching products:", error);
+        } finally {
+            // Stop the spinner whether the request succeeds or fails.
+            setloading(false);
+        }
     }, []);
 
+    // Fetch products automatically when the admin page first opens.
+    useEffect(() => {
+        fetchProducts();
+    }, [fetchProducts]);
+
+    // Delete the selected product after the user confirms the action in the modal.
+    const handleDelete = async () => {
+        // The backend delete controller searches by productID, not Mongo's _id.
+        const productId = productToDelete?.productID;
+
+        if (!productId) {
+            toast.error("This product cannot be deleted because its ID is missing.");
+            return;
+        }
+
+        const token = localStorage.getItem("token");
+        setIsDeleting(true);
+
+        try {
+            const response = await api.delete(`/products/${productId}`, {
+                headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+            });
+            setProducts((currentProducts) =>
+                currentProducts.filter(
+                    (product) => product.productID !== productId,
+                ),
+            );
+            toast.success(response.data?.message || "Product deleted successfully.");
+            setProductToDelete(null);
+        } catch (error) {
+            console.error("Error deleting product:", error);
+            toast.error(
+                error.response?.data?.message || "Failed to delete product.",
+            );
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    // Only display products matching the search text in any supported field.
     const filteredProducts = products.filter((product) => {
         const query = search.toLowerCase();
 
@@ -41,9 +93,9 @@ export default function AdminProducts() {
                         <h1 className="mt-1 text-3xl font-bold text-slate-900">Admin Products</h1>
                     </div>
 
-                    <div className="w-full max-w-md">
-                        <label htmlFor="product-search" className="sr-only">Search products</label>
-                        <div className="relative">
+                    <div className="flex w-full max-w-md items-center gap-3">
+                        <div className="relative min-w-0 flex-1">
+                            <label htmlFor="product-search" className="sr-only">Search products</label>
                             <input
                                 id="product-search"
                                 type="text"
@@ -62,6 +114,19 @@ export default function AdminProducts() {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </div>
+                        {/* Clicking this button requests the latest product data. */}
+                        <button
+                            type="button"
+                            onClick={fetchProducts}
+                            // Prevent duplicate requests while the current request is active.
+                            disabled={isloading}
+                            aria-label="Refresh products"
+                            title="Refresh products"
+                            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-sky-600 text-white shadow-md shadow-sky-200 transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                            {/* Animate the icon while the API request is in progress. */}
+                            <FaArrowsRotate className={isloading ? "animate-spin" : ""} />
+                        </button>
                     </div>
                 </div>
 
@@ -79,6 +144,7 @@ export default function AdminProducts() {
                                     <th className="px-4 py-3">Stock</th>
                                     <th className="px-4 py-3">Status</th>
                                     <th className="px-4 py-3">Price</th>
+                                    <th className="px-4 py-3">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -119,6 +185,27 @@ export default function AdminProducts() {
                                             <td className="px-4 py-3 font-bold text-slate-900">
                                                 ${Number(product.price ?? 0).toFixed(2)}
                                             </td>
+                                            <td className="px-4 py-3">
+                                                <div className="flex items-center gap-2">
+                                                    <Link
+                                                        to={`/admin/edit-product/${product.productID}`}
+                                                        aria-label={`Edit ${product.name || "product"}`}
+                                                        title="Edit product"
+                                                        className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 text-blue-600 transition hover:bg-blue-600 hover:text-white"
+                                                    >
+                                                        <FaRegPenToSquare />
+                                                    </Link>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setProductToDelete(product)}
+                                                        aria-label={`Delete ${product.name || "product"}`}
+                                                        title="Delete product"
+                                                        className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-100 text-red-600 transition hover:bg-red-600 hover:text-white"
+                                                    >
+                                                        <FaRegTrashCan />
+                                                    </button>
+                                                </div>
+                                            </td>
                                         </tr>
                                     );
                                 })}
@@ -133,6 +220,13 @@ export default function AdminProducts() {
                     )}
                 </div>
             </div>
+
+            <DeleteProductModal
+                product={productToDelete}
+                isDeleting={isDeleting}
+                onClose={() => setProductToDelete(null)}
+                onConfirm={handleDelete}
+            />
 
             <Link to="/admin/add-product" className="fixed bottom-10 right-10 flex h-14 w-14 items-center justify-center rounded-full bg-linear-to-r from-blue-600 to-sky-500 text-white shadow-lg shadow-blue-500/30 transition-all duration-200 hover:scale-105 hover:shadow-xl hover:shadow-blue-500/40">
                 <FaCirclePlus className="text-3xl" />

@@ -2,15 +2,18 @@ import { useState } from "react"
 import UploadMedia from "../lib/uploadMedia.js"
 
 export default function TestPage(){
+  // Store the selected file and whether the drop zone is currently active.
     const [file, setFile] = useState(null)
     const [dragActive, setDragActive] = useState(false)
 
+    // Reuse the same handler for picker and drag-and-drop selection.
     function handleFileSelect(selectedFile){
         if(selectedFile){
             setFile(selectedFile)
         }
     }
 
+    // Upload the selected file and log the returned public URL for testing.
     function Uploadfile(selectedFile){
         if(!selectedFile){
             return
@@ -23,6 +26,7 @@ export default function TestPage(){
         })
     }
 
+    // Prevent the browser's default file navigation when a file is dropped.
     function handleDrop(event){
         event.preventDefault()
         setDragActive(false)
@@ -31,6 +35,7 @@ export default function TestPage(){
     }
 
  return( 
+   // Render a small upload playground for testing Supabase media uploads.
     <div className="w-full min-h-screen flex items-center justify-center bg-gray-50 p-6">
       <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <label
