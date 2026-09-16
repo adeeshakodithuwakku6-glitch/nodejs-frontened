@@ -83,6 +83,7 @@ export default function ProductOverview() {
                                 <FaCartPlus />
                                 {product.isAvailable && Number(product.stock ?? 0) > 0 ? "Add to cart" : "Out of stock"}
                             </button>
+                            <button type="button" disabled={!product.isAvailable || Number(product.stock ?? 0) < 1} onClick={() => { addToCart(product, quantity); navigate("/cart"); }} className="inline-flex flex-1 items-center justify-center rounded-xl bg-amber-400 px-6 py-4 font-bold text-slate-950 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:bg-slate-300">Buy now</button>
                         </div>
                     </div>
                 </section>

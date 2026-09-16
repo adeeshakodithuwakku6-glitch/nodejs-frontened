@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import toast from "react-hot-toast";
 import api from "../lib/api.js";
+import { getUserFromAuthResponse, saveAuth } from "../lib/auth";
 export default function LoginPage(){
   // Keep the form fields controlled so their values are available during login.
     const [email, setEmail] = useState("");
@@ -17,9 +18,12 @@ export default function LoginPage(){
             password: password
         }).then((res) => {
                 toast.success("Login successful!");
-                console.log(res.data.token);
-                console.log(res.data.isadmin);
                 localStorage.setItem("token", res.data.token);
+                saveAuth({
+                  token: res.data.token,
+                  isAdmin: Boolean(res.data.isadmin),
+                  user: getUserFromAuthResponse(res.data, email),
+                });
                 if(res.data.isadmin){
                   navigate("/admin");  
                 }

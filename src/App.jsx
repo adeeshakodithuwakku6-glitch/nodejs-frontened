@@ -6,6 +6,7 @@ import TestPage from './pages/testPage.jsx'
 import Homepage from './pages/homepage.jsx'
 import ProductOverview from './pages/productOverview.jsx'
 import CartPage from './pages/cartPage.jsx'
+import InvoicePage from './pages/invoicePage.jsx'
 import { Toaster } from "react-hot-toast"
 import { Routes, Route, Navigate } from 'react-router-dom'
 import './App.css'
@@ -25,6 +26,7 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/products/:productID" element={<ProductOverview />} />
         <Route path="/cart" element={<CartPage />} />
+        <Route path="/invoice" element={<InvoicePage />} />
         <Route path="/admin/*" element={<AdminPage />} />
         <Route path="/test" element={<TestPage />} />
         <Route path="*" element={<Navigate to="/login" replace />} />

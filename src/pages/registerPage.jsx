@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import toast from "react-hot-toast";
 import api from "../lib/api.js";
+import { getUserFromAuthResponse, saveAuth } from "../lib/auth";
 export default function RegisterPage(){
 
   // Store each registration field as controlled form state.
@@ -33,8 +34,13 @@ export default function RegisterPage(){
             lastName: lastname
         }).then((res) => {
                 toast.success("Registration successful!");
-                
-                navigate("/login");
+                if (res.data.token) {
+                  localStorage.setItem("token", res.data.token);
+                  saveAuth({ token: res.data.token, isAdmin: Boolean(res.data.isadmin), user: { ...getUserFromAuthResponse(res.data, email), firstName: firstname, lastName: lastname } });
+                  navigate("/");
+                } else {
+                  navigate("/login");
+                }
             
             })
             .catch((err) => {
