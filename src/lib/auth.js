@@ -14,9 +14,27 @@ function getTokenUser(token) {
     }
 }
 
+export function isTokenValid(token) {
+    if (!token) {
+        return false;
+    }
+
+    try {
+        const payload = getTokenUser(token);
+        return !payload.exp || payload.exp * 1000 > Date.now();
+    } catch (error) {
+        return false;
+    }
+}
+
 export function getAuth() {
     try {
-        return JSON.parse(localStorage.getItem(AUTH_STORAGE_KEY) || "null");
+        const auth = JSON.parse(localStorage.getItem(AUTH_STORAGE_KEY) || "null");
+        if (auth?.token && !isTokenValid(auth.token)) {
+            clearAuth();
+            return null;
+        }
+        return auth;
     } catch (error) {
         console.error("Could not read auth state:", error);
         return null;

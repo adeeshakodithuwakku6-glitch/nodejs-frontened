@@ -49,3 +49,39 @@
 		animation: none;
 	}
 }
+
+.bill-page {
+	position: relative;
+}
+
+.bill-page::before {
+	content: "";
+	position: absolute;
+	inset: 1rem 0 auto;
+	height: 12rem;
+	border-radius: 2rem;
+	background: radial-gradient(circle at 70% 20%, rgba(34, 211, 238, 0.16), transparent 60%);
+	pointer-events: none;
+}
+
+@media print {
+	body {
+		background: white !important;
+	}
+
+	.bill-page {
+		max-width: none !important;
+		padding: 0 !important;
+	}
+
+	.bill-page::before,
+	.bill-page > div:first-child,
+	.bill-shell > header {
+		display: none !important;
+	}
+
+	.bill-page article {
+		box-shadow: none !important;
+		border: 1px solid #dbe3ed;
+	}
+}

@@ -9,14 +9,22 @@ export default function LoginPage(){
   // Keep the form fields controlled so their values are available during login.
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate(); 
 
     // Send the credentials to the API and route the user based on their role.
-    function handleLogin(){
-        api.post("/users/login", {
+    async function handleLogin(){
+      if (!email.trim() || !password) {
+        toast.error("Enter your email and password.");
+        return;
+      }
+
+      setIsSubmitting(true);
+      try {
+        const res = await api.post("/users/login", {
             email: email,
             password: password
-        }).then((res) => {
+        });
                 toast.success("Login successful!");
                 localStorage.setItem("token", res.data.token);
                 saveAuth({
@@ -30,12 +38,12 @@ export default function LoginPage(){
                 else{
                   navigate("/");
                 }
-            
-            })
-            .catch((err) => {
-                toast.error("Invalid email or password");
-                console.error(err);
-            });
+        } catch (err) {
+          toast.error(err.response?.data?.message || "Invalid email or password");
+          console.error(err);
+        } finally {
+          setIsSubmitting(false);
+        }
     }
     return(
       // Render the login form and links to the other account actions.
@@ -62,7 +70,7 @@ export default function LoginPage(){
                       }
                       type="password" className="w-full h-14 rounded-md p-2 mb-4 border-2 border-white focus:border-be-zinc-900" placeholder="Enter your password"/>
                 <p className="text-black w-full text-right">Forgot your password?<Link to="/forgot-password" className="text-blue-500 hover:underline">Reset here</Link></p>
-                <button onClick={handleLogin} className="w-full h-14 bg-blue-700 text-white rounded-md mt-4 hover:bg-blue-600 transition-colors">Login</button>
+                <button onClick={handleLogin} disabled={isSubmitting} className="w-full h-14 bg-blue-700 text-white rounded-md mt-4 hover:bg-blue-600 transition-colors disabled:cursor-not-allowed disabled:opacity-60">{isSubmitting ? "Signing in..." : "Login"}</button>
                 <p className="text-black mt-4 ">Don't have an account? <Link to="/register" className="text-blue-500 hover:underline">Register here</Link></p>
                 <button className="w-full h-14 bg-blue-700 text-white rounded-md mt-4 hover:bg-gray-600 transition-colors flex items-center justify-center gap-2"><FcGoogle />Login with Google</button>
                 
