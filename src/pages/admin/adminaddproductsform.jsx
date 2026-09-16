@@ -80,10 +80,10 @@ export default function AddProductsForm() {
         }
     }
     return (
-        <div className="relative w-full h-full flex flex-col p-4">
+        <div className="relative h-full w-full flex flex-col bg-[#eaf1f8] p-4">
             {/* Display a blocking loading overlay while saving. */}
             {isSaving && <LoadingAnimation />}
-            <div className="w-full bg-white shadow-md rounded-lg px-4 py-5 overflow-y-auto">
+            <div className="w-full overflow-y-auto rounded-xl border border-slate-200 bg-[#f5f9ff] px-4 py-5 shadow-lg shadow-slate-200/70">
                 <div className="flex items-center justify-between border-b border-gray-200 pb-4">
                     <h1 className="text-2xl font-semibold text-black">Add New Product</h1>
                     <div className="flex items-center gap-2 pr-2">
@@ -103,7 +103,7 @@ export default function AddProductsForm() {
                             type="text"
                             value={productID}
                             onChange={(e) => setProductID(e.target.value)}
-                            className="rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="rounded-md border border-slate-300 bg-slate-50 px-4 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
 
@@ -113,7 +113,7 @@ export default function AddProductsForm() {
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="rounded-md border border-slate-300 bg-slate-50 px-4 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
 
@@ -123,7 +123,7 @@ export default function AddProductsForm() {
                             type="text"
                             value={altNames.join(", ")}
                             onChange={(e) => setAltNames(e.target.value.split(",").map((s) => s.trim()))}
-                            className="h-12 rounded-md border border-gray-300 px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="h-12 rounded-md border border-slate-300 bg-slate-50 px-4 py-2 text-base text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                         <span className="mt-1 text-sm text-gray-500">Enter alternative names separated by commas, e.g. "name1, name2"</span>
                     </div>
@@ -133,7 +133,7 @@ export default function AddProductsForm() {
                         <textarea
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            className="rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="rounded-md border border-slate-300 bg-slate-50 px-4 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
 
@@ -143,7 +143,7 @@ export default function AddProductsForm() {
                             type="file"
                             multiple
                             onChange={(e) => setImages(Array.from(e.target.files))}
-                            className="rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="rounded-md border border-slate-300 bg-slate-50 px-4 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
 
@@ -153,7 +153,7 @@ export default function AddProductsForm() {
                             type="number"
                             value={price}
                             onChange={(e) => setPrice(parseFloat(e.target.value))}
-                            className="rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="rounded-md border border-slate-300 bg-slate-50 px-4 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
 
@@ -163,7 +163,7 @@ export default function AddProductsForm() {
                             type="number"
                             value={labelledPrice}
                             onChange={(e) => setLabelledPrice(parseFloat(e.target.value))}
-                            className="rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="rounded-md border border-slate-300 bg-slate-50 px-4 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
 
@@ -173,7 +173,7 @@ export default function AddProductsForm() {
                             type="number"
                             value={stock}
                             onChange={(e) => setStock(parseInt(e.target.value))}
-                            className="rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="rounded-md border border-slate-300 bg-slate-50 px-4 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
 
@@ -182,7 +182,7 @@ export default function AddProductsForm() {
                         <select
                             value={isAvailable}
                             onChange={(e) => setIsAvailable(e.target.value === "true")}
-                            className="rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="rounded-md border border-slate-300 bg-slate-50 px-4 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
                             <option value="true">Yes</option>
                             <option value="false">No</option>
@@ -194,7 +194,7 @@ export default function AddProductsForm() {
                         <select
                             value={category}
                             onChange={(e) => setCategory(e.target.value)}
-                            className="rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="rounded-md border border-slate-300 bg-slate-50 px-4 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
                             <option value="">Select a category</option>
                             <option value="Laptop">Laptop</option>
@@ -203,6 +203,20 @@ export default function AddProductsForm() {
                             <option value="Keyboard">Keyboard</option>
                             <option value="Mouse">Mouse</option>
                             <option value="Printer">Printer</option>
+                            <option value="Tablet">Tablet</option>
+                            <option value="Smartphone">Smartphone</option>
+                            <option value="Headphones">Headphones</option>
+                            <option value="Speaker">Speaker</option>
+                            <option value="Smartwatch">Smartwatch</option>
+                            <option value="Webcam">Webcam</option>
+                            <option value="USB Hub">USB Hub</option>
+                            <option value="Router">Router</option>
+                            <option value="Storage Device">Storage Device</option>
+                            <option value="Gaming Console">Gaming Console</option>
+                            <option value="Projector">Projector</option>
+                            <option value="Camera">Camera</option>
+                            <option value="Drone">Drone</option>
+                            <option value="Accessory">Accessory</option>
                         </select>
                     </div>
 
@@ -212,7 +226,7 @@ export default function AddProductsForm() {
                             type="text"
                             value={brand}
                             onChange={(e) => setBrand(e.target.value)}
-                            className="rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="rounded-md border border-slate-300 bg-slate-50 px-4 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
 
@@ -222,7 +236,7 @@ export default function AddProductsForm() {
                             type="text"
                             value={model}
                             onChange={(e) => setModel(e.target.value)}
-                            className="rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="rounded-md border border-slate-300 bg-slate-50 px-4 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
                 </div>

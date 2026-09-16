@@ -27,7 +27,8 @@ export default function OrderBillPage() {
             try {
                 const response = await api.get(`/orders/${encodeURIComponent(orderId)}`);
                 const loadedOrder = response.data?.order || response.data;
-                if (loadedOrder.customerEmail && auth.user?.email && loadedOrder.customerEmail.toLowerCase() !== auth.user.email.toLowerCase()) {
+                const isOwner = loadedOrder.customerEmail && auth.user?.email && loadedOrder.customerEmail.toLowerCase() === auth.user.email.toLowerCase();
+                if (!auth.isAdmin && loadedOrder.customerEmail && !isOwner) {
                     setErrorMessage("You can only view bills for your own orders.");
                     return;
                 }
@@ -42,7 +43,8 @@ export default function OrderBillPage() {
     }, [auth?.token, orderId]);
 
     if (!auth) return <Navigate to="/login" replace />;
-    if (errorMessage) return <div className="min-h-screen bg-slate-50"><Header /><main className="mx-auto max-w-2xl px-5 py-20 text-center"><p className="text-red-600">{errorMessage}</p><Link to="/profile" className="mt-6 inline-block font-bold text-sky-600">Back to account</Link></main></div>;
+    const backLink = auth.isAdmin ? "/admin" : "/profile";
+    if (errorMessage) return <div className="min-h-screen bg-slate-50"><Header /><main className="mx-auto max-w-2xl px-5 py-20 text-center"><p className="text-red-600">{errorMessage}</p><Link to={backLink} className="mt-6 inline-block font-bold text-sky-600">{auth.isAdmin ? "Back to admin" : "Back to account"}</Link></main></div>;
     if (!order) return <div className="min-h-screen bg-slate-50"><Header /><main className="flex min-h-[65vh] items-center justify-center text-slate-500">Loading bill...</main></div>;
 
     const downloadBill = () => {
@@ -59,7 +61,7 @@ export default function OrderBillPage() {
         <div className="bill-shell min-h-screen bg-[radial-gradient(circle_at_top,#e0f2fe,#f8fafc_42%,#eef2f7)] text-slate-800">
             <Header />
             <main className="bill-page mx-auto max-w-3xl px-5 py-10 lg:px-8">
-                <div className="mb-6 flex flex-wrap items-center justify-between gap-3"><Link to="/profile" className="inline-flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-sky-600"><FaArrowLeft /> Back to account</Link><div className="flex gap-2"><button type="button" onClick={downloadBill} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold hover:border-sky-400 hover:text-sky-600"><FaDownload /> Download</button><button type="button" onClick={() => window.print()} className="inline-flex items-center gap-2 rounded-xl bg-slate-950 px-4 py-3 text-sm font-bold text-white hover:bg-sky-600"><FaPrint /> Print</button></div></div>
+                <div className="mb-6 flex flex-wrap items-center justify-between gap-3"><Link to={backLink} className="inline-flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-sky-600"><FaArrowLeft /> {auth.isAdmin ? "Back to admin" : "Back to account"}</Link><div className="flex gap-2"><button type="button" onClick={downloadBill} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold hover:border-sky-400 hover:text-sky-600"><FaDownload /> Download</button><button type="button" onClick={() => window.print()} className="inline-flex items-center gap-2 rounded-xl bg-slate-950 px-4 py-3 text-sm font-bold text-white hover:bg-sky-600"><FaPrint /> Print</button></div></div>
                 <article className="overflow-hidden rounded-3xl bg-white shadow-xl shadow-slate-200/70"><header className="flex flex-col gap-4 bg-slate-950 p-7 text-white sm:flex-row sm:items-start sm:justify-between sm:p-10"><div><p className="text-sm font-bold uppercase tracking-[0.2em] text-cyan-300">TechNest bill</p><h1 className="mt-2 text-3xl font-black">Order receipt</h1><p className="mt-2 text-slate-300">{order.orderId}</p></div><div className="text-sm sm:text-right"><p className="font-bold text-amber-300">{order.status || "Pending"}</p><p className="mt-1 text-slate-300">{formatDate(order.createdAt)}</p></div></header><div className="space-y-8 p-7 sm:p-10"><div className="grid gap-5 border-b border-slate-200 pb-7 sm:grid-cols-2"><div><p className="text-xs font-bold uppercase tracking-wider text-slate-500">Customer</p><p className="mt-2 font-bold text-slate-950">{order.firstName} {order.lastName}</p><p className="text-sm text-slate-600">{order.phoneNumber}</p></div><div><p className="text-xs font-bold uppercase tracking-wider text-slate-500">Delivery address</p><p className="mt-2 text-sm text-slate-600">{order.address}<br />{order.district}, {order.postalCode}<br />{order.country || "Sri Lanka"}</p></div></div><div><div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500"><FaReceipt /> Ordered products</div><div className="mt-4 divide-y divide-slate-100">{(order.items || []).map((item, index) => <div key={item.productID || index} className="flex justify-between gap-4 py-3 text-sm"><span>{item.name || item.productID || "Product"} <strong className="text-slate-400">x{item.quantity}</strong></span><span className="font-bold">{item.price === undefined ? "" : `$${Number(item.price * item.quantity).toFixed(2)}`}</span></div>)}</div></div><div className="flex justify-between border-t border-slate-200 pt-5 text-xl font-black"><span>Total</span><span>${Number(order.total || 0).toFixed(2)}</span></div></div></article>
             </main>
         </div>

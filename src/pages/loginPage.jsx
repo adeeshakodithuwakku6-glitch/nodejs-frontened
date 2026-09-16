@@ -5,6 +5,8 @@ import { FcGoogle } from "react-icons/fc";
 import toast from "react-hot-toast";
 import api from "../lib/api.js";
 import { getUserFromAuthResponse, saveAuth } from "../lib/auth";
+import techNestLogo from "../assets/Tech Nest logo.jfif";
+
 export default function LoginPage(){
   // Keep the form fields controlled so their values are available during login.
     const [email, setEmail] = useState("");
@@ -49,7 +51,7 @@ export default function LoginPage(){
       // Render the login form and links to the other account actions.
         <div className="w-full h-screen bg-[url('/bg.jpg')] bg-cover bg-center flex items-center justify-center">
               <div className="w-112.5 h-140 backdrop-blur-md shadow-2xl rounded-lg p-2 flex flex-col items-center">
-                <img src="/logologin.png" className="w-25 h-17.5 object-cover m-1 rounded-lg"/>
+                <img src={techNestLogo} alt="TechNest logo" className="w-25 h-17.5 object-cover m-1 rounded-lg"/>
                 <h1 className="text-2xl font-bold text-white">Login</h1>
                 <label className="text-black mt-4 w-full font-semibold">Email</label>
                 <input 

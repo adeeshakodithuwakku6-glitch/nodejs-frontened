@@ -185,6 +185,20 @@ export default function EditProduct() {
                             <option value="Keyboard">Keyboard</option>
                             <option value="Mouse">Mouse</option>
                             <option value="Printer">Printer</option>
+                            <option value="Tablet">Tablet</option>
+                            <option value="Smartphone">Smartphone</option>
+                            <option value="Headphones">Headphones</option>
+                            <option value="Speaker">Speaker</option>
+                            <option value="Smartwatch">Smartwatch</option>
+                            <option value="Webcam">Webcam</option>
+                            <option value="USB Hub">USB Hub</option>
+                            <option value="Router">Router</option>
+                            <option value="Storage Device">Storage Device</option>
+                            <option value="Gaming Console">Gaming Console</option>
+                            <option value="Projector">Projector</option>
+                            <option value="Camera">Camera</option>
+                            <option value="Drone">Drone</option>
+                            <option value="Accessory">Accessory</option>
                         </select>
                     </label>
                     <label className="flex flex-col gap-1 text-sm font-medium text-gray-700">

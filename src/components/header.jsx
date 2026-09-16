@@ -1,6 +1,7 @@
 import { FaCartShopping, FaHouse, FaLocationDot, FaRightFromBracket, FaRightToBracket, FaUser, FaUserPlus } from "react-icons/fa6";
 import { Link, NavLink } from "react-router-dom";
 import { useEffect, useState } from "react";
+import techNestLogo from "../assets/Tech Nest logo.jfif";
 import { CART_UPDATED_EVENT, getCart, getCartItemCount } from "../lib/cart";
 import { AUTH_UPDATED_EVENT, clearAuth, getAuth } from "../lib/auth";
 
@@ -39,7 +40,7 @@ export default function Header() {
         <header className="sticky top-0 z-20 border-b border-cyan-900/80 bg-[#071522]/95 shadow-lg shadow-cyan-950/30 backdrop-blur-md">
             <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-4 lg:px-8">
                 <Link to="/" className="flex shrink-0 items-center gap-3">
-                    <img src="/logologin.png" alt="Store logo" className="h-10 w-14 rounded-lg object-cover" />
+                    <img src={techNestLogo} alt="TechNest logo" className="h-10 w-14 rounded-lg object-cover" />
                     <span className="text-xl font-black tracking-tight text-white">TechNest</span>
                 </Link>
 
