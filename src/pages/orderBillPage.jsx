@@ -43,7 +43,7 @@ export default function OrderBillPage() {
     }, [auth?.token, orderId]);
 
     if (!auth) return <Navigate to="/login" replace />;
-    const backLink = auth.isAdmin ? "/admin" : "/profile";
+    const backLink = auth.isAdmin ? "/admin/orders" : "/profile";
     if (errorMessage) return <div className="min-h-screen bg-slate-50"><Header /><main className="mx-auto max-w-2xl px-5 py-20 text-center"><p className="text-red-600">{errorMessage}</p><Link to={backLink} className="mt-6 inline-block font-bold text-sky-600">{auth.isAdmin ? "Back to admin" : "Back to account"}</Link></main></div>;
     if (!order) return <div className="min-h-screen bg-slate-50"><Header /><main className="flex min-h-[65vh] items-center justify-center text-slate-500">Loading bill...</main></div>;
 

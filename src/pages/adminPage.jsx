@@ -10,6 +10,9 @@ import { getAllStoredOrders } from "../lib/orders";
 import AdminProducts from "./admin/adminproducts.jsx";
 import AddProductsForm from "./admin/adminaddproductsform.jsx";
 import EditProduct from "./admin/admineditproduct.jsx";
+import AdminUsers from "./admin/adminusers.jsx";
+import OrderBillPage from "./orderBillPage.jsx";
+import OrderTrackingPage from "./orderTrackingPage.jsx";
 
 function AdminOrdersPage() {
     const [orders, setOrders] = useState([]);
@@ -148,8 +151,8 @@ function AdminOrdersPage() {
                                             </td>
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center gap-2">
-                                                    <Link to={`/orders/${encodeURIComponent(order.orderId)}`} className="rounded-xl bg-sky-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-sky-700">View</Link>
-                                                    <Link to={`/orders/${encodeURIComponent(order.orderId)}/bill`} className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 transition hover:border-sky-400 hover:text-sky-700">Bill</Link>
+                                                    <Link to={`/admin/orders/${encodeURIComponent(order.orderId)}`} className="rounded-xl bg-sky-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-sky-700">View</Link>
+                                                    <Link to={`/admin/orders/${encodeURIComponent(order.orderId)}/bill`} className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 transition hover:border-sky-400 hover:text-sky-700">Bill</Link>
                                                 </div>
                                             </td>
                                         </tr>
@@ -168,6 +171,7 @@ export default function AdminPage(){
     const [receivedOrders, setReceivedOrders] = useState([]);
     const [ordersLoading, setOrdersLoading] = useState(true);
     const auth = getAuth();
+    const isAdmin = Boolean(auth?.isAdmin ?? auth?.isadmin ?? auth?.user?.isAdmin ?? auth?.user?.isadmin);
     const adminName = auth?.user?.firstName || auth?.user?.firstname || auth?.firstName || auth?.firstname || "Admin";
     const adminNavClass = ({ isActive }) => `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold transition ${isActive ? "bg-cyan-400 text-slate-950 shadow-lg shadow-cyan-950/30" : "text-slate-300 hover:bg-white/10 hover:text-white"}`;
 
@@ -216,6 +220,14 @@ export default function AdminPage(){
         };
     }, [receivedOrders]);
 
+    if (!auth) {
+        return <div className="flex min-h-screen items-center justify-center bg-[#06111f] p-6 text-center text-white"><div><h1 className="text-3xl font-black">Please log in</h1><p className="mt-3 text-slate-400">You need an administrator account to open this page.</p><Link to="/login" className="mt-6 inline-flex rounded-xl bg-cyan-400 px-5 py-3 font-bold text-slate-950">Go to login</Link></div></div>;
+    }
+
+    if (!isAdmin) {
+        return <div className="flex min-h-screen items-center justify-center bg-[#06111f] p-6 text-center text-white"><div><h1 className="text-3xl font-black">Access denied</h1><p className="mt-3 text-slate-400">Only administrators can open this page.</p><Link to="/" className="mt-6 inline-flex rounded-xl bg-cyan-400 px-5 py-3 font-bold text-slate-950">Back to storefront</Link></div></div>;
+    }
+
     return(
         <div className="flex h-screen w-full overflow-hidden bg-[#06111f] text-slate-100 shadow-2xl">
             {/* The sidebar provides navigation for the admin area. */}
@@ -241,7 +253,9 @@ export default function AdminPage(){
                 <Routes>
                     <Route index element={<div className="p-8 lg:p-12"><p className="text-sm font-bold uppercase tracking-[0.2em] text-cyan-300">Control center</p><h1 className="mt-2 text-4xl font-black text-white">Hi! {adminName}</h1><p className="mt-3 max-w-xl text-slate-400">Manage your store catalogue, users, and daily operations from one place.</p><div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"><Link to="/admin/products" className="rounded-2xl border border-cyan-900/70 bg-slate-900/80 p-6 transition hover:-translate-y-1 hover:border-cyan-400"><LuPackageOpen className="text-2xl text-cyan-300" /><h2 className="mt-5 text-xl font-black">Products</h2><p className="mt-2 text-sm text-slate-400">Add, edit, and manage your catalogue.</p></Link><Link to="/admin/users" className="rounded-2xl border border-cyan-900/70 bg-slate-900/80 p-6 transition hover:-translate-y-1 hover:border-cyan-400"><FaUser className="text-2xl text-cyan-300" /><h2 className="mt-5 text-xl font-black">Users</h2><p className="mt-2 text-sm text-slate-400">Review customer account access.</p></Link><Link to="/" className="rounded-2xl border border-cyan-900/70 bg-slate-900/80 p-6 transition hover:-translate-y-1 hover:border-cyan-400"><FaHouse className="text-2xl text-cyan-300" /><h2 className="mt-5 text-xl font-black">Storefront</h2><p className="mt-2 text-sm text-slate-400">Return to the customer shopping experience.</p></Link></div><div className="mt-10 grid gap-5 lg:grid-cols-3"><div className="rounded-2xl border border-cyan-900/70 bg-slate-900/80 p-5"><p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Received</p><p className="mt-3 text-3xl font-black text-white">{stats.totalOrders}</p><p className="mt-1 text-sm text-slate-400">Total orders</p></div><div className="rounded-2xl border border-cyan-900/70 bg-slate-900/80 p-5"><p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Pending</p><p className="mt-3 text-3xl font-black text-white">{stats.pending}</p><p className="mt-1 text-sm text-slate-400">Awaiting review</p></div><div className="rounded-2xl border border-cyan-900/70 bg-slate-900/80 p-5"><p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Revenue</p><p className="mt-3 text-3xl font-black text-white">${stats.totalRevenue.toFixed(2)}</p><p className="mt-1 text-sm text-slate-400">Collected value</p></div></div><section className="mt-10 rounded-2xl border border-cyan-900/70 bg-slate-900/80 p-6"><div className="flex items-center justify-between gap-3"><div><p className="text-sm font-bold uppercase tracking-[0.2em] text-cyan-300">Received orders</p><h2 className="mt-2 text-2xl font-black text-white">Recent orders</h2></div><span className="rounded-full bg-cyan-400/15 px-3 py-1 text-xs font-black uppercase tracking-[0.2em] text-cyan-300">{stats.shipped} shipped</span></div>{ordersLoading ? <p className="mt-6 text-slate-400">Loading received orders...</p> : receivedOrders.length === 0 ? <p className="mt-6 text-slate-400">No orders have been received yet.</p> : <div className="mt-6 space-y-3">{receivedOrders.slice(0, 6).map((order) => <div key={order.orderId || order._id || order.id || order.orderID || Math.random()} className="flex flex-col gap-3 rounded-xl border border-cyan-900/70 bg-slate-950/50 p-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-black text-white">{order.orderId || order._id || order.id || order.orderID || "Order"}</p><p className="mt-1 text-sm text-slate-400">{order.customerEmail || order.email || "Customer email unavailable"}</p><p className="mt-1 text-xs text-slate-500">{order.createdAt ? new Date(order.createdAt).toLocaleString() : "Date unavailable"}</p></div><div className="flex items-center gap-3"><span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-700">{order.status || "Pending"}</span><span className="text-lg font-black text-cyan-300">${Number(order.total || 0).toFixed(2)}</span></div></div>)}</div>}</section></div>} />
                     <Route path="orders" element={<AdminOrdersPage />} />
-                    <Route path="users" element={<div className="p-8 lg:p-12"><p className="text-sm font-bold uppercase tracking-[0.2em] text-cyan-300">Administration</p><h1 className="mt-2 text-4xl font-black">User management</h1></div>} />
+                    <Route path="orders/:orderId" element={<OrderTrackingPage />} />
+                    <Route path="orders/:orderId/bill" element={<OrderBillPage />} />
+                    <Route path="users" element={<AdminUsers />} />
                     <Route path="products" element={<AdminProducts />} />
                     <Route path="add-product" element={<AddProductsForm />} />
                     <Route path="edit-product/:productID" element={<EditProduct />} />

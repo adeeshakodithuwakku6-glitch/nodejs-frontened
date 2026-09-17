@@ -3,7 +3,7 @@ import { Link, NavLink } from "react-router-dom";
 import { useEffect, useState } from "react";
 import techNestLogo from "../assets/Tech Nest logo.jfif";
 import { CART_UPDATED_EVENT, getCart, getCartItemCount } from "../lib/cart";
-import { AUTH_UPDATED_EVENT, clearAuth, getAuth } from "../lib/auth";
+import { AUTH_UPDATED_EVENT, clearAuth, getAuth, getUserInitial } from "../lib/auth";
 
 const navLinkClass = ({ isActive }) =>
     `inline-flex items-center gap-2 border-b-2 px-1 py-2 text-sm font-semibold transition ${
@@ -15,6 +15,7 @@ const navLinkClass = ({ isActive }) =>
 export default function Header() {
     const [cartCount, setCartCount] = useState(0);
     const [auth, setAuth] = useState(getAuth);
+    const userInitial = getUserInitial(auth?.user);
 
     useEffect(() => {
         const updateCartCount = () => setCartCount(getAuth() ? getCartItemCount() : 0);
@@ -49,7 +50,7 @@ export default function Header() {
                         <FaHouse />
                         Home
                     </NavLink>
-                    {auth ? <div className="flex items-center gap-2"><Link to="/profile" className="flex items-center gap-2 rounded-2xl border border-cyan-800/80 bg-slate-900/80 p-1.5 pl-2.5 shadow-inner shadow-cyan-950/40 transition hover:border-cyan-400" title="Open profile"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-cyan-300 text-xs font-black uppercase text-slate-950">{(auth.user?.email || "S").charAt(0)}</span><span className="max-w-44 truncate px-1 text-sm font-bold text-white">{auth.user?.email || "Signed in"}</span><span className="hidden text-xs font-bold text-cyan-300 lg:inline"><FaUser /></span></Link><button type="button" onClick={clearAuth} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-slate-300 transition hover:bg-red-400/15 hover:text-red-300" aria-label="Log out" title="Log out"><FaRightFromBracket /></button></div> : <><NavLink to="/login" className={navLinkClass}><FaRightToBracket />Login</NavLink><NavLink to="/register" className={navLinkClass}><FaUserPlus />Register</NavLink></>}
+                    {auth ? <div className="flex items-center gap-2"><Link to="/profile" className="flex items-center gap-2 rounded-2xl border border-cyan-800/80 bg-slate-900/80 p-1.5 pl-2.5 shadow-inner shadow-cyan-950/40 transition hover:border-cyan-400" title="Open profile"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-cyan-300 text-xs font-black uppercase text-slate-950">{userInitial}</span><span className="max-w-44 truncate px-1 text-sm font-bold text-white">{auth.user?.email || "Signed in"}</span><span className="hidden text-xs font-bold text-cyan-300 lg:inline"><FaUser /></span></Link><button type="button" onClick={clearAuth} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-slate-300 transition hover:bg-red-400/15 hover:text-red-300" aria-label="Log out" title="Log out"><FaRightFromBracket /></button></div> : <><NavLink to="/login" className={navLinkClass}><FaRightToBracket />Login</NavLink><NavLink to="/register" className={navLinkClass}><FaUserPlus />Register</NavLink></>}
                     <NavLink to="/cart" className={navLinkClass}>
                         <FaCartShopping />
                         Cart {cartCount > 0 && <span className="rounded-full bg-amber-400 px-2 py-0.5 text-xs text-slate-950">{cartCount}</span>}
@@ -65,7 +66,7 @@ export default function Header() {
                 </nav>
 
                 <div className="flex items-center gap-2 md:hidden">
-                    {auth && <Link to="/profile" aria-label="Open profile" className="flex h-10 w-10 items-center justify-center rounded-full border border-cyan-400/70 bg-slate-900 text-cyan-300 transition hover:bg-cyan-400 hover:text-slate-950"><FaUser /></Link>}
+                    {auth && <Link to="/profile" aria-label="Open profile" className="flex h-10 w-10 items-center justify-center rounded-full border border-cyan-400/70 bg-cyan-300 text-sm font-black text-slate-950 transition hover:bg-white">{userInitial}</Link>}
                     {auth?.isAdmin && <Link to="/admin" aria-label="Open admin panel" className="flex h-10 w-10 items-center justify-center rounded-full border border-amber-400/70 bg-slate-900 text-amber-300 transition hover:bg-amber-400 hover:text-slate-950"><FaUser /></Link>}
                     {auth && <Link to="/track-order" aria-label="Track order" className="flex h-10 w-10 items-center justify-center rounded-full border border-cyan-400/70 bg-slate-900 text-cyan-300 transition hover:bg-cyan-400 hover:text-slate-950"><FaLocationDot /></Link>}
                     <Link to="/cart" aria-label={`Open cart${cartCount > 0 ? `, ${cartCount} items` : ""}`} className="relative flex h-10 w-10 items-center justify-center rounded-full bg-cyan-400 text-slate-950 transition hover:bg-white">

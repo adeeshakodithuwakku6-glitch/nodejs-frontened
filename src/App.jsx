@@ -11,8 +11,9 @@ import OrderCheckoutPage from './pages/orderCheckoutPage.jsx'
 import OrderTrackingPage from './pages/orderTrackingPage.jsx'
 import ProfilePage from './pages/profilePage.jsx'
 import OrderBillPage from './pages/orderBillPage.jsx'
+import NotFoundPage from './pages/notFoundPage.jsx'
 import { Toaster } from "react-hot-toast"
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import './App.css'
 
 function App() {
@@ -38,7 +39,7 @@ function App() {
         <Route path="/orders/:orderId/bill" element={<OrderBillPage />} />
         <Route path="/admin/*" element={<AdminPage />} />
         <Route path="/test" element={<TestPage />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </div>
   )

@@ -13,6 +13,7 @@ export default function RegisterPage(){
     const [email, setEmail] = useState("");
     const[firstname, setfirstname] = useState("");
     const[lastname, setlastname] = useState("");
+    const [gender, setGender] = useState("");
     const [password, setPassword] = useState("");
     const[confirmpassword, setconfirmpassword] = useState("");
 
@@ -20,7 +21,11 @@ export default function RegisterPage(){
 
     // Validate the passwords before creating the new account through the API.
     function handleRegister(){
-       if(!password || !confirmpassword){
+        if (!gender) {
+          toast.error("Please select your gender");
+          return;
+        }
+        if(!password || !confirmpassword){
           toast.error("Please enter both password fields");
           return;
         }
@@ -29,16 +34,17 @@ export default function RegisterPage(){
           toast.error("Passwords do not match");
           return;
         }
-        api.post("/users/", {
+        api.post("/users", {
             email: email,
             password: password,
             firstName: firstname,
-            lastName: lastname
+            lastName: lastname,
+            gender: gender
         }).then((res) => {
                 toast.success("Registration successful!");
                 if (res.data.token) {
                   localStorage.setItem("token", res.data.token);
-                  saveAuth({ token: res.data.token, isAdmin: Boolean(res.data.isadmin), user: { ...getUserFromAuthResponse(res.data, email), firstName: firstname, lastName: lastname } });
+                  saveAuth({ token: res.data.token, isAdmin: Boolean(res.data.isadmin), user: { ...getUserFromAuthResponse(res.data, email), firstName: firstname, lastName: lastname, gender } });
                   navigate("/");
                 } else {
                   navigate("/login");
@@ -52,10 +58,10 @@ export default function RegisterPage(){
     }
     return(
       // Render the registration form and account navigation links.
-        <div className="w-full h-screen bg-[url('/bg.jpg')] bg-cover bg-center flex items-center justify-center">
-              <div className="w-112.5 h-140 backdrop-blur-md shadow-2xl rounded-lg p-2 flex flex-col items-center">
+          <div className="auth-page flex items-center justify-center">
+            <div className="auth-card flex flex-col items-center">
                 <img src={techNestLogo} alt="TechNest logo" className="w-25 h-17.5 object-cover m-1 rounded-lg"/>
-                <h1 className="text-2xl font-bold text-white">Register</h1>
+                <p className="mt-3 text-xs font-bold uppercase tracking-[0.25em] text-cyan-300">Create your account</p><h1 className="mt-2 text-3xl font-black text-white">Register</h1>
                 
                 <label className="text-black mt-4 w-full font-semibold">Email</label>
                 <input 
@@ -95,6 +101,14 @@ export default function RegisterPage(){
                       type="text" className="w-full h-14 rounded-xl px-4 py-3 border border-white/70 bg-white/80 text-gray-900 shadow-sm backdrop-blur-sm placeholder:text-gray-500 focus:border-blue-600 focus:ring-2 focus:ring-blue-400/40 transition-all duration-200" placeholder="Enter your last name"/>
                   </div>
                 </div>
+
+                <label className="text-black mt-4 w-full font-semibold" htmlFor="gender">Gender</label>
+                <select id="gender" value={gender} onChange={(e) => setGender(e.target.value)} required className="w-full h-14 rounded-xl px-4 py-3 border border-white/70 bg-white/80 text-gray-900 shadow-sm backdrop-blur-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-400/40 transition-all duration-200">
+                  <option value="" disabled>Select your gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
                 
                 <label className="text-black mt-4 w-full font-semibold">Password</label>
                 <input 

@@ -63,10 +63,6 @@ export default function OrderTrackingPage() {
         }
     };
 
-    if (!auth) {
-        return <Navigate to="/login" replace />;
-    }
-
     useEffect(() => {
         if (routeOrderId) loadOrder(routeOrderId);
     }, [routeOrderId]);
@@ -76,6 +72,10 @@ export default function OrderTrackingPage() {
             setSelectedStatus(order.status);
         }
     }, [order?.status]);
+
+    if (!auth) {
+        return <Navigate to="/login" replace />;
+    }
 
     const handleStatusUpdate = async () => {
         if (!order?.orderId || !auth?.isAdmin) return;
@@ -102,12 +102,13 @@ export default function OrderTrackingPage() {
     const currentStatus = order?.status || "Pending";
     const currentStatusIndex = statuses.indexOf(currentStatus);
     const isCancelled = currentStatus.toLowerCase() === "cancelled";
+    const backLink = auth.isAdmin ? "/admin/orders" : "/";
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-800">
             <Header />
             <main className="mx-auto max-w-4xl px-5 py-10 lg:px-8">
-                <Link to="/" className="inline-flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-sky-600"><FaArrowLeft /> Back to store</Link>
+                <Link to={backLink} className="inline-flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-sky-600"><FaArrowLeft /> {auth.isAdmin ? "Back to all orders" : "Back to store"}</Link>
                 <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"><p className="text-sm font-bold uppercase tracking-[0.2em] text-sky-600">Order tracking</p><h1 className="mt-2 text-3xl font-black text-slate-950">Find your order</h1><form onSubmit={(event) => { event.preventDefault(); loadOrder(); }} className="mt-6 flex flex-col gap-3 sm:flex-row"><input value={orderId} onChange={(event) => setOrderId(event.target.value)} placeholder="ORD-..." className="min-w-0 flex-1 rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-100" /><button type="submit" disabled={isLoading} className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 py-3 font-bold text-white hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-60"><FaRotate className={isLoading ? "animate-spin" : ""} />{isLoading ? "Loading..." : "Track order"}</button></form></section>
                 {errorMessage && <div role="alert" className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{errorMessage}{errorMessage.includes("log in") && <Link to="/login" className="ml-1 font-bold underline">Log in</Link>}</div>}
                 {statusUpdateMessage && <div role="status" className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">{statusUpdateMessage}</div>}

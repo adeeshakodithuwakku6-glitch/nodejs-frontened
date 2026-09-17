@@ -22,6 +22,16 @@
 	}
 }
 
+@keyframes auth-background-drift {
+	0%,
+	100% {
+		background-position: 0% 50%, 0% 0%;
+	}
+	50% {
+		background-position: 100% 50%, 0% 0%;
+	}
+}
+
 .homepage-hero-image {
 	animation: homepage-image-drift 14s ease-in-out infinite alternate;
 	will-change: transform;
@@ -52,6 +62,126 @@
 
 .bill-page {
 	position: relative;
+}
+
+.auth-page {
+	position: relative;
+	isolation: isolate;
+	overflow: hidden;
+	min-height: 100vh;
+	background: #06111f;
+	background-size: 180% 180%, 100% 100%;
+	padding: 2rem 1rem;
+	animation: auth-background-drift 16s ease-in-out infinite;
+}
+
+.auth-page::before {
+	content: "";
+	position: absolute;
+	inset: -8%;
+	z-index: -2;
+	background: url("/bg.jpg") center / cover no-repeat;
+	animation: homepage-image-drift 14s ease-in-out infinite alternate;
+	will-change: transform;
+}
+
+.auth-page::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background: radial-gradient(circle at top left, rgba(34, 211, 238, 0.2), transparent 36%), rgba(2, 8, 23, 0.68);
+}
+
+.auth-card {
+	position: relative;
+	z-index: 1;
+	width: min(100%, 29rem);
+	max-height: calc(100vh - 4rem);
+	overflow-y: auto;
+	border: 1px solid rgba(103, 232, 249, 0.28);
+	border-radius: 1.5rem;
+	background: rgba(15, 23, 42, 0.82);
+	padding: 2rem;
+	box-shadow: 0 25px 70px rgba(2, 8, 23, 0.5);
+	backdrop-filter: blur(18px);
+}
+
+.auth-card input,
+.auth-card select {
+	border-color: rgba(148, 163, 184, 0.55);
+	background: rgba(248, 250, 252, 0.96);
+	transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.auth-card input:focus,
+.auth-card select:focus {
+	border-color: #22d3ee;
+	box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.16);
+	outline: none;
+}
+
+.admin-modal {
+	border-radius: 1.25rem;
+	background: linear-gradient(145deg, #111c31, #0b1425);
+	box-shadow: 0 24px 80px rgba(2, 8, 23, 0.7);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.auth-page,
+	.auth-page::before {
+		animation: none;
+	}
+}
+
+.fixed form.max-w-lg {
+	width: min(calc(100vw - 2rem), 40rem);
+	max-width: none;
+	min-height: 30rem;
+	padding: 2rem;
+	max-height: calc(100vh - 2rem);
+	overflow-y: auto;
+	border-radius: 1.25rem;
+	background: linear-gradient(145deg, #111c31, #0b1425);
+	box-shadow: 0 24px 80px rgba(2, 8, 23, 0.7);
+}
+
+.fixed form.max-w-lg h2 {
+	letter-spacing: -0.02em;
+	color: #f8fafc;
+}
+
+.fixed form.max-w-lg input[type="text"],
+.fixed form.max-w-lg input[type="password"] {
+	border-color: #334155;
+	background: #020617;
+	color: #f8fafc;
+	transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.fixed form.max-w-lg input[type="text"]:focus,
+.fixed form.max-w-lg input[type="password"]:focus,
+.fixed form.max-w-lg select:focus {
+	border-color: #22d3ee;
+	box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.14);
+	outline: none;
+}
+
+.fixed form.max-w-lg input[type="file"] {
+	border: 1px dashed #475569;
+	border-radius: 0.75rem;
+	padding: 0.75rem;
+	background: rgba(2, 6, 23, 0.5);
+}
+
+.fixed form.max-w-lg button[type="submit"] {
+	box-shadow: 0 8px 22px rgba(34, 211, 238, 0.2);
+	transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.fixed form.max-w-lg button[type="submit"]:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 12px 28px rgba(34, 211, 238, 0.3);
 }
 
 .bill-page::before {

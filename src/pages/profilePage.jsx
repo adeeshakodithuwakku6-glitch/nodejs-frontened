@@ -3,15 +3,17 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import Header from "../components/header";
-import api from "../lib/api";
+import api, { resolveMediaUrl } from "../lib/api";
 import uploadMedia from "../lib/uploadMedia";
 import { getAuth, saveAuth } from "../lib/auth";
 import { getStoredOrders, saveOrderForUser } from "../lib/orders";
+import { getDefaultAvatar, isDefaultAvatarUrl, isPlaceholderImage } from "../lib/avatar";
 
 const emptyProfile = {
     email: "",
     firstName: "",
     lastName: "",
+    gender: "",
     image: "",
     isVerified: false,
     isActive: true,
@@ -23,13 +25,30 @@ function getProfileData(data) {
 
 function normalizeProfile(data, fallback = {}) {
     const profile = getProfileData(data) || {};
+    const isActive = profile.isActive ?? profile.isactive ?? profile.active
+        ?? (profile.isblocked !== undefined ? !profile.isblocked : undefined)
+        ?? (profile.isBlocked !== undefined ? !profile.isBlocked : undefined)
+        ?? (profile.blocked !== undefined ? !profile.blocked : undefined)
+        ?? (profile.accountStatus ? profile.accountStatus !== "Suspended" : undefined)
+        ?? fallback.isActive
+        ?? true;
+
+    const email = profile.email || fallback.email || "";
+    const firstName = profile.firstName || profile.firstname || fallback.firstName || "";
+    const gender = String(profile.gender || fallback.gender || "").toLowerCase();
+    const image = [profile.image, profile.profileImage, profile.profile_image, fallback.image]
+        .find((value) => !isPlaceholderImage(value)) || getDefaultAvatar(gender);
+
     return {
-        email: profile.email || fallback.email || "",
-        firstName: profile.firstName || profile.firstname || fallback.firstName || "",
+        email,
+        firstName,
         lastName: profile.lastName || profile.lastname || fallback.lastName || "",
-        image: profile.image || profile.profileImage || profile.profile_image || fallback.image || "",
+        gender: ["male", "female", "other"].includes(gender) ? gender : "",
+        image: isPlaceholderImage(image) ? getDefaultAvatar(gender) : resolveMediaUrl(image),
         isVerified: Boolean(profile.isVerified ?? profile.verified ?? profile.emailVerified ?? fallback.isVerified),
-        isActive: profile.isActive ?? profile.active ?? (profile.accountStatus ? profile.accountStatus !== "Suspended" : fallback.isActive),
+        isActive,
+        isBlocked: Boolean(profile.isblocked ?? profile.isBlocked ?? profile.blocked ?? fallback.isBlocked),
+        isAdmin: Boolean(profile.isadmin ?? profile.isAdmin ?? profile.admin ?? fallback.isAdmin),
     };
 }
 
@@ -63,7 +82,12 @@ export default function ProfilePage() {
                 }
             } catch (error) {
                 if (isMounted && error.response?.status !== 401) {
-                    setErrorMessage(error.response?.data?.message || "Could not load your profile.");
+                    const message = error.response?.data?.message;
+                    const hiddenMessages = [
+                        "User does not exist",
+                        "You need to login as an admin to view users",
+                    ];
+                    setErrorMessage(hiddenMessages.includes(message) ? "" : message || "Could not load your profile.");
                 }
             } finally {
                 if (isMounted) {
@@ -122,16 +146,21 @@ export default function ProfilePage() {
         setIsSaving(true);
         setErrorMessage("");
         try {
-            let image = form.image.trim();
+            let image;
             if (selectedImage) {
                 image = await uploadMedia(selectedImage);
             }
-            const response = await api.patch("/users/profile", {
+            const updatePayload = {
                 firstName: form.firstName.trim(),
                 lastName: form.lastName.trim(),
-                image,
-            });
-            const nextProfile = normalizeProfile(response.data, { ...profile, ...form, image });
+                gender: form.gender,
+                password: form.password?.trim() || undefined,
+            };
+            if (image) updatePayload.image = image;
+            else if (!isDefaultAvatarUrl(profile.image) && profile.image) updatePayload.image = profile.image;
+            const response = await api.put(`/users/${encodeURIComponent(profile.email)}`, updatePayload);
+            const fallbackImage = image || (isDefaultAvatarUrl(profile.image) ? "" : profile.image);
+            const nextProfile = normalizeProfile(response.data, { ...profile, ...form, image: fallbackImage });
             setProfile(nextProfile);
             setForm(nextProfile);
             setSelectedImage(null);
@@ -165,6 +194,8 @@ export default function ProfilePage() {
                 <section className="mt-8 overflow-hidden rounded-3xl border border-cyan-900/70 bg-slate-900 shadow-2xl shadow-cyan-950/30">
                     <div className="border-b border-cyan-900/70 bg-[radial-gradient(circle_at_top_right,#164e63,#0f172a_60%)] p-7 sm:p-10"><p className="text-sm font-bold uppercase tracking-[0.2em] text-cyan-300">Account</p><h1 className="mt-2 text-3xl font-black text-white">Your profile</h1><p className="mt-2 text-slate-300">Manage your account information.</p></div>
                     {errorMessage && <div role="alert" className="mx-7 mt-6 rounded-xl border border-red-400/30 bg-red-400/10 p-4 text-sm text-red-200 sm:mx-10">{errorMessage}</div>}
+                    {!isEditing && <section className="mx-7 mt-8 border-y border-cyan-900/60 py-6 sm:mx-10" aria-label="Account status"><div className="grid gap-6 sm:grid-cols-3"><div><p className="text-xs font-bold uppercase tracking-wider text-slate-500">Gender</p><p className="mt-2 font-bold text-white">{profile.gender ? profile.gender.charAt(0).toUpperCase() + profile.gender.slice(1) : "Not provided"}</p></div><div><p className="text-xs font-bold uppercase tracking-wider text-slate-500">Verification</p><p className={`mt-2 font-bold ${profile.isVerified ? "text-emerald-300" : "text-amber-300"}`}>{profile.isVerified ? "Verified" : "Not verified"}</p></div><div><p className="text-xs font-bold uppercase tracking-wider text-slate-500">Access</p><p className="mt-2 font-bold text-white">{profile.isAdmin ? "Admin" : "User"} <span className={profile.isBlocked ? "text-red-300" : "text-emerald-300"}>· {profile.isBlocked ? "Blocked" : "Active"}</span></p></div></div></section>}
+                    {isEditing && <div className="mx-7 mt-6 sm:mx-10"><label className="text-sm font-bold text-slate-200" htmlFor="profile-gender">Gender<select id="profile-gender" name="gender" value={form.gender} onChange={updateField} required className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 font-normal text-white"><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option></select></label></div>}
                     {!isEditing ? <div className="grid gap-8 p-7 sm:grid-cols-[180px_1fr] sm:p-10"><div className="flex flex-col items-center gap-3"><div className="flex h-36 w-36 items-center justify-center overflow-hidden rounded-full border-4 border-cyan-300/70 bg-slate-950 text-5xl text-cyan-300">{profile.image ? <img src={profile.image} alt="Profile" className="h-full w-full object-cover" /> : <FaUser />}</div><span className="text-xs font-bold uppercase tracking-wider text-slate-500">Profile image</span></div><div className="grid content-start gap-5 sm:grid-cols-2"><div><p className="text-xs font-bold uppercase tracking-wider text-slate-500">Email</p><p className="mt-2 break-all font-bold text-white">{profile.email || "Not provided"}</p></div><div><p className="text-xs font-bold uppercase tracking-wider text-slate-500">Verification</p><p className={`mt-2 font-bold ${profile.isVerified ? "text-emerald-300" : "text-amber-300"}`}>{profile.isVerified ? "Verified" : "Not verified"}</p></div><div><p className="text-xs font-bold uppercase tracking-wider text-slate-500">First name</p><p className="mt-2 font-bold text-white">{profile.firstName || "Not provided"}</p></div><div><p className="text-xs font-bold uppercase tracking-wider text-slate-500">Last name</p><p className="mt-2 font-bold text-white">{profile.lastName || "Not provided"}</p></div><div><p className="text-xs font-bold uppercase tracking-wider text-slate-500">Account status</p><p className={`mt-2 font-bold ${profile.isActive ? "text-emerald-300" : "text-red-300"}`}>{profile.isActive ? "Active" : "Inactive"}</p></div><div className="sm:col-span-2"><button type="button" onClick={() => setIsEditing(true)} className="inline-flex items-center gap-2 rounded-xl bg-cyan-400 px-5 py-3 font-black text-slate-950 hover:bg-white"><FaPen /> Edit profile</button></div></div></div> : <form onSubmit={handleSave} className="grid gap-6 p-7 sm:grid-cols-[180px_1fr] sm:p-10"><div className="flex flex-col items-center gap-3"><div className="flex h-36 w-36 items-center justify-center overflow-hidden rounded-full border-4 border-cyan-300/70 bg-slate-950 text-5xl text-cyan-300">{form.image ? <img src={form.image} alt="Profile preview" className="h-full w-full object-cover" /> : <FaUser />}</div><label className="inline-flex cursor-pointer items-center gap-2 text-sm font-bold text-cyan-300 hover:text-white"><FaCamera /> Change image<input type="file" accept="image/*" onChange={handleImageChange} className="hidden" /></label></div><div className="grid gap-5 sm:grid-cols-2"><label className="text-sm font-bold text-slate-300">Email<input value={form.email} readOnly className="mt-2 w-full cursor-not-allowed rounded-xl border border-slate-700 bg-slate-950/60 px-4 py-3 text-slate-500" /></label><div /><label className="text-sm font-bold text-slate-300">First name<input name="firstName" value={form.firstName} onChange={updateField} required className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400" /></label><label className="text-sm font-bold text-slate-300">Last name<input name="lastName" value={form.lastName} onChange={updateField} required className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400" /></label><label className="text-sm font-bold text-slate-300 sm:col-span-2">Profile image URL<input name="image" value={form.image} onChange={updateField} placeholder="https://..." className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-400" /></label><div className="flex flex-wrap gap-3 sm:col-span-2"><button type="submit" disabled={isSaving} className="rounded-xl bg-cyan-400 px-5 py-3 font-black text-slate-950 hover:bg-white disabled:cursor-not-allowed disabled:opacity-60">{isSaving ? "Saving..." : "Save changes"}</button><button type="button" onClick={cancelEditing} disabled={isSaving} className="rounded-xl border border-slate-600 px-5 py-3 font-bold text-slate-200 hover:border-white disabled:opacity-60">Cancel</button></div></div></form>}
                     <section className="mt-8 overflow-hidden rounded-3xl border border-cyan-900/70 bg-slate-900 shadow-2xl shadow-cyan-950/30">
                         <div className="border-b border-cyan-900/70 p-7 sm:p-8"><p className="text-sm font-bold uppercase tracking-[0.2em] text-cyan-300">Order history</p><h2 className="mt-2 text-2xl font-black text-white">Your orders</h2><p className="mt-2 text-slate-400">Track deliveries and download bills for your orders.</p></div>

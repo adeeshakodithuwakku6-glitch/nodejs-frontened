@@ -60,6 +60,11 @@ export function getUserFromAuthResponse(data, email = "") {
     };
 }
 
+    export function getUserInitial(user = {}) {
+        const name = user.firstName || user.firstname || user.name || user.email || "U";
+        return name.trim().charAt(0).toUpperCase() || "U";
+    }
+
 export function clearAuth() {
     localStorage.removeItem(AUTH_STORAGE_KEY);
     localStorage.removeItem("token");

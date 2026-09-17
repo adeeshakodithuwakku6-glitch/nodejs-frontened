@@ -31,17 +31,20 @@ export default function LoginPage(){
                 localStorage.setItem("token", res.data.token);
                 saveAuth({
                   token: res.data.token,
-                  isAdmin: Boolean(res.data.isadmin),
+                  isAdmin: Boolean(res.data.isadmin ?? res.data.isAdmin ?? res.data.admin),
                   user: getUserFromAuthResponse(res.data, email),
                 });
-                if(res.data.isadmin){
+                if(res.data.isadmin ?? res.data.isAdmin ?? res.data.admin){
                   navigate("/admin");  
                 }
                 else{
                   navigate("/");
                 }
         } catch (err) {
-          toast.error(err.response?.data?.message || "Invalid email or password");
+          const message = err.response?.status === 403
+            ? "Your account is blocked. Please contact an administrator."
+            : err.response?.data?.message || "Invalid email or password";
+          toast.error(message);
           console.error(err);
         } finally {
           setIsSubmitting(false);
@@ -49,10 +52,10 @@ export default function LoginPage(){
     }
     return(
       // Render the login form and links to the other account actions.
-        <div className="w-full h-screen bg-[url('/bg.jpg')] bg-cover bg-center flex items-center justify-center">
-              <div className="w-112.5 h-140 backdrop-blur-md shadow-2xl rounded-lg p-2 flex flex-col items-center">
+          <div className="auth-page flex items-center justify-center">
+            <div className="auth-card flex flex-col items-center">
                 <img src={techNestLogo} alt="TechNest logo" className="w-25 h-17.5 object-cover m-1 rounded-lg"/>
-                <h1 className="text-2xl font-bold text-white">Login</h1>
+                <p className="mt-3 text-xs font-bold uppercase tracking-[0.25em] text-cyan-300">Welcome back</p><h1 className="mt-2 text-3xl font-black text-white">Login</h1>
                 <label className="text-black mt-4 w-full font-semibold">Email</label>
                 <input 
                       value={email}
