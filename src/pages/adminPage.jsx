@@ -1,6 +1,6 @@
 import { Link, NavLink, Route, Routes } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
-import { FaArrowLeft, FaCartShopping, FaHouse, FaMagnifyingGlass, FaSpinner } from "react-icons/fa6";
+import { FaArrowLeft, FaBullhorn, FaCartShopping, FaHouse, FaMagnifyingGlass, FaSpinner } from "react-icons/fa6";
 import { FaUser } from "react-icons/fa";
 import { LuPackageOpen } from "react-icons/lu";
 import api from "../lib/api";
@@ -13,6 +13,7 @@ import EditProduct from "./admin/admineditproduct.jsx";
 import AdminUsers from "./admin/adminusers.jsx";
 import OrderBillPage from "./orderBillPage.jsx";
 import OrderTrackingPage from "./orderTrackingPage.jsx";
+import AdminAnnouncements from "./admin/adminAnnouncements.jsx";
 
 function AdminOrdersPage() {
     const [orders, setOrders] = useState([]);
@@ -229,10 +230,10 @@ export default function AdminPage(){
     }
 
     return(
-        <div className="flex h-screen w-full overflow-hidden bg-[#06111f] text-slate-100 shadow-2xl">
+        <div className="flex min-h-screen w-full flex-col bg-[#06111f] text-slate-100 shadow-2xl md:h-screen md:flex-row md:overflow-hidden">
             {/* The sidebar provides navigation for the admin area. */}
-            <aside className="sticky top-0 flex h-screen w-72 shrink-0 flex-col border-r border-cyan-900/70 bg-[#071522] p-4">
-                <div className="flex items-center gap-3 border-b border-cyan-900/70 px-2 pb-6">
+            <aside className="sticky top-0 z-10 flex w-full shrink-0 flex-col border-b border-cyan-900/70 bg-[#071522] p-4 md:h-screen md:w-72 md:border-b-0 md:border-r">
+                <div className="flex items-center gap-3 border-b border-cyan-900/70 px-2 pb-4 md:pb-6">
                     <img src={techNestLogo} alt="TechNest logo" className="h-12 w-16 rounded-lg object-cover" />
                     <div>
                         <p className="text-xs font-bold uppercase tracking-[0.2em] text-cyan-300">TechNest</p>
@@ -240,16 +241,17 @@ export default function AdminPage(){
                         <p className="mt-1 text-sm font-semibold text-cyan-200">Hi! {adminName}</p>
                     </div>
                 </div>
-                <nav className="mt-8 space-y-2" aria-label="Admin navigation">
+                <nav className="mt-4 grid grid-cols-2 gap-2 md:mt-8 md:block md:space-y-2" aria-label="Admin navigation">
                     <NavLink to="/admin" end className={adminNavClass}><FaCartShopping />Orders</NavLink>
                     <NavLink to="/admin/orders" className={adminNavClass}><FaCartShopping />Admin Orders</NavLink>
                     <NavLink to="/admin/users" className={adminNavClass}><FaUser />User management</NavLink>
                     <NavLink to="/admin/products" className={adminNavClass}><LuPackageOpen />Products</NavLink>
+                    <NavLink to="/admin/announcements" className={adminNavClass}><FaBullhorn />Announcements</NavLink>
                 </nav>
-                <div className="mt-auto border-t border-cyan-900/70 pt-4"><Link to="/" className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-300 transition hover:bg-white/10 hover:text-white"><FaHouse />Back to storefront</Link><Link to="/" className="mt-2 flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-500 transition hover:text-cyan-300"><FaArrowLeft />Exit admin</Link></div>
+                <div className="mt-4 grid grid-cols-2 gap-2 border-t border-cyan-900/70 pt-4 md:mt-auto md:block"><Link to="/" className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-300 transition hover:bg-white/10 hover:text-white"><FaHouse />Back to storefront</Link><Link to="/" className="mt-0 flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-500 transition hover:text-cyan-300 md:mt-2"><FaArrowLeft />Exit admin</Link></div>
             </aside>
             {/* Nested routes render the selected admin page in the main panel. */}
-            <main className="h-screen flex-1 overflow-y-auto bg-[radial-gradient(circle_at_top_right,#123b58_0%,#06111f_48%,#040a14_100%)] text-white">
+            <main className="min-h-0 flex-1 overflow-y-auto bg-[radial-gradient(circle_at_top_right,#123b58_0%,#06111f_48%,#040a14_100%)] text-white md:h-screen">
                 <Routes>
                     <Route index element={<div className="p-8 lg:p-12"><p className="text-sm font-bold uppercase tracking-[0.2em] text-cyan-300">Control center</p><h1 className="mt-2 text-4xl font-black text-white">Hi! {adminName}</h1><p className="mt-3 max-w-xl text-slate-400">Manage your store catalogue, users, and daily operations from one place.</p><div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"><Link to="/admin/products" className="rounded-2xl border border-cyan-900/70 bg-slate-900/80 p-6 transition hover:-translate-y-1 hover:border-cyan-400"><LuPackageOpen className="text-2xl text-cyan-300" /><h2 className="mt-5 text-xl font-black">Products</h2><p className="mt-2 text-sm text-slate-400">Add, edit, and manage your catalogue.</p></Link><Link to="/admin/users" className="rounded-2xl border border-cyan-900/70 bg-slate-900/80 p-6 transition hover:-translate-y-1 hover:border-cyan-400"><FaUser className="text-2xl text-cyan-300" /><h2 className="mt-5 text-xl font-black">Users</h2><p className="mt-2 text-sm text-slate-400">Review customer account access.</p></Link><Link to="/" className="rounded-2xl border border-cyan-900/70 bg-slate-900/80 p-6 transition hover:-translate-y-1 hover:border-cyan-400"><FaHouse className="text-2xl text-cyan-300" /><h2 className="mt-5 text-xl font-black">Storefront</h2><p className="mt-2 text-sm text-slate-400">Return to the customer shopping experience.</p></Link></div><div className="mt-10 grid gap-5 lg:grid-cols-3"><div className="rounded-2xl border border-cyan-900/70 bg-slate-900/80 p-5"><p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Received</p><p className="mt-3 text-3xl font-black text-white">{stats.totalOrders}</p><p className="mt-1 text-sm text-slate-400">Total orders</p></div><div className="rounded-2xl border border-cyan-900/70 bg-slate-900/80 p-5"><p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Pending</p><p className="mt-3 text-3xl font-black text-white">{stats.pending}</p><p className="mt-1 text-sm text-slate-400">Awaiting review</p></div><div className="rounded-2xl border border-cyan-900/70 bg-slate-900/80 p-5"><p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Revenue</p><p className="mt-3 text-3xl font-black text-white">${stats.totalRevenue.toFixed(2)}</p><p className="mt-1 text-sm text-slate-400">Collected value</p></div></div><section className="mt-10 rounded-2xl border border-cyan-900/70 bg-slate-900/80 p-6"><div className="flex items-center justify-between gap-3"><div><p className="text-sm font-bold uppercase tracking-[0.2em] text-cyan-300">Received orders</p><h2 className="mt-2 text-2xl font-black text-white">Recent orders</h2></div><span className="rounded-full bg-cyan-400/15 px-3 py-1 text-xs font-black uppercase tracking-[0.2em] text-cyan-300">{stats.shipped} shipped</span></div>{ordersLoading ? <p className="mt-6 text-slate-400">Loading received orders...</p> : receivedOrders.length === 0 ? <p className="mt-6 text-slate-400">No orders have been received yet.</p> : <div className="mt-6 space-y-3">{receivedOrders.slice(0, 6).map((order) => <div key={order.orderId || order._id || order.id || order.orderID || Math.random()} className="flex flex-col gap-3 rounded-xl border border-cyan-900/70 bg-slate-950/50 p-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-black text-white">{order.orderId || order._id || order.id || order.orderID || "Order"}</p><p className="mt-1 text-sm text-slate-400">{order.customerEmail || order.email || "Customer email unavailable"}</p><p className="mt-1 text-xs text-slate-500">{order.createdAt ? new Date(order.createdAt).toLocaleString() : "Date unavailable"}</p></div><div className="flex items-center gap-3"><span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-700">{order.status || "Pending"}</span><span className="text-lg font-black text-cyan-300">${Number(order.total || 0).toFixed(2)}</span></div></div>)}</div>}</section></div>} />
                     <Route path="orders" element={<AdminOrdersPage />} />
@@ -257,6 +259,7 @@ export default function AdminPage(){
                     <Route path="orders/:orderId/bill" element={<OrderBillPage />} />
                     <Route path="users" element={<AdminUsers />} />
                     <Route path="products" element={<AdminProducts />} />
+                    <Route path="announcements" element={<AdminAnnouncements />} />
                     <Route path="add-product" element={<AddProductsForm />} />
                     <Route path="edit-product/:productID" element={<EditProduct />} />
                 </Routes>

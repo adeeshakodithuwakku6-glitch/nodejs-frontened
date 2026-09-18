@@ -1,10 +1,11 @@
 import { FaArrowLeft, FaCartPlus, FaMinus, FaPlus } from "react-icons/fa6";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import api from "../lib/api";
 import Header from "../components/header";
 import { addToCart } from "../lib/cart";
+import { getAuth } from "../lib/auth";
 
 export default function ProductOverview() {
     const { productID } = useParams();
@@ -12,6 +13,11 @@ export default function ProductOverview() {
     const [product, setProduct] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [quantity, setQuantity] = useState(1);
+    const [comments, setComments] = useState([]);
+    const [commentText, setCommentText] = useState("");
+    const [isCommentsLoading, setIsCommentsLoading] = useState(true);
+    const [isCommentSubmitting, setIsCommentSubmitting] = useState(false);
+    const auth = getAuth();
 
     useEffect(() => {
         async function loadProduct() {
@@ -35,6 +41,58 @@ export default function ProductOverview() {
         loadProduct();
     }, [navigate, productID]);
 
+    const loadComments = useCallback(async () => {
+        setIsCommentsLoading(true);
+        try {
+            const response = await api.get(`/products/${encodeURIComponent(productID)}/comments`);
+            const loadedComments = response.data?.comments || response.data;
+            setComments(Array.isArray(loadedComments) ? loadedComments : []);
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Could not load comments.");
+        } finally {
+            setIsCommentsLoading(false);
+        }
+    }, [productID]);
+
+    useEffect(() => {
+        loadComments();
+    }, [loadComments]);
+
+    async function handleCreateComment(event) {
+        event.preventDefault();
+        const text = commentText.trim();
+
+        if (!auth) {
+            return;
+        }
+        if (!text) {
+            toast.error("Write a comment first.");
+            return;
+        }
+
+        setIsCommentSubmitting(true);
+        try {
+            const response = await api.post(`/products/${encodeURIComponent(productID)}/comments`, { text });
+            setCommentText("");
+            await loadComments();
+            toast.success("Comment added.");
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Could not add comment.");
+        } finally {
+            setIsCommentSubmitting(false);
+        }
+    }
+
+    async function handleDeleteComment(commentId) {
+        try {
+            await api.delete(`/products/${encodeURIComponent(productID)}/comments/${encodeURIComponent(commentId)}`);
+            await loadComments();
+            toast.success("Comment deleted.");
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Could not delete comment.");
+        }
+    }
+
     if (isLoading) {
         return (
             <div className="min-h-screen bg-slate-50">
@@ -49,6 +107,13 @@ export default function ProductOverview() {
     }
 
     const imageUrl = product.images?.[0] || "https://placehold.co/900x700/e2e8f0/475569?text=No+Image";
+    const currentUserId = auth?.user?._id || auth?.user?.id || auth?.user?.userId || auth?.user?.userID;
+
+    function commentBelongsToCurrentUser(comment) {
+        const owner = comment.user || comment.author || comment.createdBy || {};
+        const ownerId = comment.userId || comment.userID || comment.authorId || comment.createdById || owner._id || owner.id || owner.userId || owner.userID;
+        return Boolean(currentUserId && ownerId && String(currentUserId) === String(ownerId));
+    }
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-800">
@@ -85,6 +150,28 @@ export default function ProductOverview() {
                             </button>
                             <button type="button" disabled={!product.isAvailable || Number(product.stock ?? 0) < 1} onClick={() => { addToCart(product, quantity); navigate("/cart"); }} className="inline-flex flex-1 items-center justify-center rounded-xl bg-amber-400 px-6 py-4 font-bold text-slate-950 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:bg-slate-300">Buy now</button>
                         </div>
+                    </div>
+                </section>
+                <section className="mt-8 rounded-3xl bg-white p-7 shadow-xl shadow-slate-200/70 sm:p-10">
+                    <div className="flex items-end justify-between gap-4">
+                        <div>
+                            <p className="text-sm font-bold uppercase tracking-[0.18em] text-sky-600">Community</p>
+                            <h2 className="mt-2 text-3xl font-black text-slate-950">Product comments</h2>
+                        </div>
+                        <span className="text-sm font-semibold text-slate-500">{comments.length} comment{comments.length === 1 ? "" : "s"}</span>
+                    </div>
+                    {auth ? <form onSubmit={handleCreateComment} className="mt-6 flex flex-col gap-3">
+                        <label htmlFor="product-comment" className="sr-only">Write your comment</label>
+                        <textarea id="product-comment" value={commentText} onChange={(event) => setCommentText(event.target.value)} placeholder="Write your comment here..." rows="4" className="w-full resize-y rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100" />
+                        <button type="submit" disabled={isCommentSubmitting} className="self-start rounded-xl bg-slate-950 px-6 py-3 font-bold text-white transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-60">{isCommentSubmitting ? "Posting..." : "Post comment"}</button>
+                    </form> : <p className="mt-6 rounded-xl bg-slate-100 px-4 py-3 font-semibold text-slate-600">Please login to write a comment.</p>}
+                    <div className="mt-7 space-y-4">
+                        {isCommentsLoading ? <p className="text-slate-500">Loading comments...</p> : comments.length === 0 ? <p className="text-slate-500">No comments yet. Start the conversation.</p> : comments.map((comment) => {
+                            const commentId = comment._id || comment.id || comment.commentId;
+                            const author = [comment.authorFirstName, comment.authorLastName].filter(Boolean).join(" ") || "Customer";
+                            const commentDate = comment.createdAt || comment.created_at || comment.date;
+                            return <article key={commentId} className="rounded-2xl border border-slate-200 bg-slate-50 p-4"><div className="flex items-start justify-between gap-4"><div><p className="font-bold text-slate-950">{author}</p><p className="mt-2 whitespace-pre-wrap text-slate-700">{comment.text || comment.comment}</p><p className="mt-3 text-sm text-slate-500">{commentDate ? new Date(commentDate).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" }) : "Date unavailable"}</p></div>{commentBelongsToCurrentUser(comment) && <button type="button" onClick={() => handleDeleteComment(commentId)} className="shrink-0 text-sm font-semibold text-red-600 hover:text-red-800">Delete</button>}</div></article>;
+                        })}
                     </div>
                 </section>
             </main>

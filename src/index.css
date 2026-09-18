@@ -1,2 +1,10 @@
 /* Load Tailwind's utility classes for the entire React application. */
 @import "tailwindcss";
+
+html,
+body,
+#root {
+	min-width: 0;
+	max-width: 100%;
+	overflow-x: hidden;
+}

@@ -75,9 +75,9 @@ export default function RegisterPage(){
                 
                 
 
-                <div className="w-full h-12 flex gap-2 mb-4">
+                <div className="mb-4 flex w-full flex-col gap-4 sm:flex-row sm:gap-2">
 
-                  <div className="w-1/2 h-12 flex-col">
+                  <div className="flex w-full flex-col sm:w-1/2">
                      <label className="text-black mt-4 w-full font-semibold">First Name</label>
                      <input 
                       value={firstname}
@@ -89,7 +89,7 @@ export default function RegisterPage(){
                       type="text" className="w-full h-14 rounded-xl px-4 py-3 border border-white/70 bg-white/80 text-gray-900 shadow-sm backdrop-blur-sm placeholder:text-gray-500 focus:border-blue-600 focus:ring-2 focus:ring-blue-400/40 transition-all duration-200" placeholder="Enter your first name"/>
 
                   </div>
-                  <div className="w-1/2 h-12 flex-col">
+                  <div className="flex w-full flex-col sm:w-1/2">
                      <label className="text-black mt-4 w-full font-semibold">Last Name</label>
                      <input 
                       value={lastname}

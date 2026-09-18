@@ -96,7 +96,7 @@ export default function AddProductsForm() {
                     </div>
                 </div>
 
-                <div className="mt-6 grid grid-cols-2 gap-4">
+                <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="flex flex-col">
                         <label className="mb-1 text-sm font-medium text-gray-700">Product ID</label>
                         <input
@@ -117,7 +117,7 @@ export default function AddProductsForm() {
                         />
                     </div>
 
-                    <div className="col-span-2 flex flex-col">
+                    <div className="flex flex-col sm:col-span-2">
                         <label className="mb-1 text-sm font-medium text-gray-700">Alt Names</label>
                         <input
                             type="text"
@@ -128,7 +128,7 @@ export default function AddProductsForm() {
                         <span className="mt-1 text-sm text-gray-500">Enter alternative names separated by commas, e.g. "name1, name2"</span>
                     </div>
 
-                    <div className="col-span-2 flex flex-col">
+                    <div className="flex flex-col sm:col-span-2">
                         <label className="mb-1 text-sm font-medium text-gray-700">Description</label>
                         <textarea
                             value={description}
@@ -137,7 +137,7 @@ export default function AddProductsForm() {
                         />
                     </div>
 
-                    <div className="col-span-2 flex flex-col">
+                    <div className="flex flex-col sm:col-span-2">
                         <label className="mb-1 text-sm font-medium text-gray-700">Images</label>
                         <input
                             type="file"
@@ -167,7 +167,7 @@ export default function AddProductsForm() {
                         />
                     </div>
 
-                    <div className="col-span-2 flex flex-col">
+                    <div className="flex flex-col sm:col-span-2">
                         <label className="mb-1 text-sm font-medium text-gray-700">Stock</label>
                         <input
                             type="number"

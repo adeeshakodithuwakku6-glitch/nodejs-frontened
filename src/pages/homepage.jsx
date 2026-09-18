@@ -6,6 +6,7 @@ import api from "../lib/api";
 import Header from "../components/header";
 import { addToCart } from "../lib/cart";
 import { getAuth } from "../lib/auth";
+import Footer from "../components/footer.jsx";
 
 export default function Homepage() {
     const [products, setProducts] = useState([]);
@@ -76,6 +77,7 @@ export default function Homepage() {
                     </div>
                 </section>
             </main>
+            <Footer />
         </div>
     );
 }

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FcGoogle } from "react-icons/fc";
+import { GoogleLogin } from "@react-oauth/google";
 import toast from "react-hot-toast";
 import api from "../lib/api.js";
 import { getUserFromAuthResponse, saveAuth } from "../lib/auth";
@@ -50,6 +50,33 @@ export default function LoginPage(){
           setIsSubmitting(false);
         }
     }
+
+    async function handleGoogleSuccess(response) {
+      if (!response.credential) {
+        toast.error("Google login did not return a credential.");
+        return;
+      }
+
+      try {
+        const res = await api.post("/users/google", {
+          credential: response.credential,
+        });
+        const isAdmin = Boolean(res.data.isadmin ?? res.data.isAdmin ?? res.data.admin);
+
+        localStorage.setItem("token", res.data.token);
+        saveAuth({
+          token: res.data.token,
+          isAdmin,
+          user: getUserFromAuthResponse(res.data),
+        });
+        toast.success("Google login successful!");
+        navigate(isAdmin ? "/admin" : "/");
+      } catch (err) {
+        toast.error(err.response?.data?.message || "Google login failed.");
+        console.error(err);
+      }
+    }
+
     return(
       // Render the login form and links to the other account actions.
           <div className="auth-page flex items-center justify-center">
@@ -77,7 +104,13 @@ export default function LoginPage(){
                 <p className="text-black w-full text-right">Forgot your password?<Link to="/forgot-password" className="text-blue-500 hover:underline">Reset here</Link></p>
                 <button onClick={handleLogin} disabled={isSubmitting} className="w-full h-14 bg-blue-700 text-white rounded-md mt-4 hover:bg-blue-600 transition-colors disabled:cursor-not-allowed disabled:opacity-60">{isSubmitting ? "Signing in..." : "Login"}</button>
                 <p className="text-black mt-4 ">Don't have an account? <Link to="/register" className="text-blue-500 hover:underline">Register here</Link></p>
-                <button className="w-full h-14 bg-blue-700 text-white rounded-md mt-4 hover:bg-gray-600 transition-colors flex items-center justify-center gap-2"><FcGoogle />Login with Google</button>
+                <div className="w-full mt-4 flex justify-center">
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={() => toast.error("Google login failed.")}
+                    useOneTap={false}
+                  />
+                </div>
                 
               </div>
         </div>
