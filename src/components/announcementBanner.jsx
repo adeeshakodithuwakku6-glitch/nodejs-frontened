@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { FaBullhorn, FaXmark } from "react-icons/fa6";
 import api from "../lib/api";
+import { AUTH_UPDATED_EVENT } from "../lib/auth";
 
 const DISMISSED_ANNOUNCEMENTS_KEY = "dismissedAnnouncements";
 
@@ -33,8 +34,10 @@ export default function AnnouncementBanner() {
         }
 
         loadAnnouncements();
+        window.addEventListener(AUTH_UPDATED_EVENT, loadAnnouncements);
         return () => {
             isMounted = false;
+            window.removeEventListener(AUTH_UPDATED_EVENT, loadAnnouncements);
         };
     }, []);
 
